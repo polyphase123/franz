@@ -48,6 +48,25 @@
         .gov-list li { @apply text-xs text-slate-600 flex items-start gap-2; }
         .gov-list li::before { content: '•'; @apply text-blue-500 font-bold; }
 
+        /* Styles for Editable Inputs in Table */
+        .table-input {
+            width: 100%;
+            max-width: 80px;
+            background: transparent;
+            border-bottom: 1px dashed #cbd5e1;
+            text-align: right;
+            font-weight: 700;
+            color: #475569;
+            outline: none;
+            padding: 2px 0;
+            transition: all 0.2s;
+        }
+        .table-input:focus {
+            border-bottom: 2px solid #2563eb;
+            color: #1e293b;
+        }
+        .table-input.pct-input { max-width: 50px; }
+
         /* Print formatting */
         @media print {
             body { background: white !important; padding: 0 !important; }
@@ -60,6 +79,7 @@
             .actual-kwh-highlight { border: 1px solid #blue-200 !important; }
             .meralco-table th, .meralco-table td { font-size: 10px !important; }
             .pricing-hero { font-size: 48px !important; }
+            .table-input { border: none !important; text-align: right; padding: 0; }
         }
     </style>
 </head>
@@ -187,48 +207,163 @@
                                 <tr>
                                     <th class="text-left">Description</th>
                                     <th>Base</th>
-                                    <th>Price</th>
+                                    <th>Price (Editable)</th>
                                     <th>Amount (PhP)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr class="section-header-row"><td colspan="3">Generation Charge</td><td id="det-gen-total">0.00</td></tr>
-                                <tr><td>Generation Charge (Grid Import)</td><td id="li-gen-base">--</td><td>7.7471</td><td id="li-gen-amt">0.00</td></tr>
-                                <tr><td>VAT on Generation (11.13%)</td><td id="li-gen-vat-base">--</td><td>11.13%</td><td id="li-gen-vat-amt">0.00</td></tr>
+                                <tr>
+                                    <td>Generation Charge (Grid Import)</td>
+                                    <td id="li-gen-base">--</td>
+                                    <td><input type="number" id="rate-gen" value="7.7471" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-gen-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>VAT on Generation</td>
+                                    <td id="li-gen-vat-base">--</td>
+                                    <td class="flex justify-end items-center gap-1"><input type="number" id="rate-gen-vat" value="11.13" step="0.01" class="table-input pct-input" oninput="calculateBill()"><span>%</span></td>
+                                    <td id="li-gen-vat-amt">0.00</td>
+                                </tr>
 
                                 <tr class="section-header-row"><td colspan="3">Transmission Charge</td><td id="det-trans-total">0.00</td></tr>
-                                <tr><td>Transmission Demand Charge</td><td id="li-trans-base">--</td><td>346.1100</td><td id="li-trans-amt">0.00</td></tr>
-                                <tr><td>VAT on Transmission (10.82%)</td><td id="li-trans-vat-base">--</td><td>10.82%</td><td id="li-trans-vat-amt">0.00</td></tr>
+                                <tr>
+                                    <td>Transmission Demand Charge</td>
+                                    <td id="li-trans-base">--</td>
+                                    <td><input type="number" id="rate-trans" value="346.1100" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-trans-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>VAT on Transmission</td>
+                                    <td id="li-trans-vat-base">--</td>
+                                    <td class="flex justify-end items-center gap-1"><input type="number" id="rate-trans-vat" value="10.82" step="0.01" class="table-input pct-input" oninput="calculateBill()"><span>%</span></td>
+                                    <td id="li-trans-vat-amt">0.00</td>
+                                </tr>
 
                                 <tr class="section-header-row"><td colspan="3">System Loss Charge</td><td id="det-sl-total">0.00</td></tr>
-                                <tr><td>System Loss Charge</td><td id="li-sl-base">--</td><td>0.6992</td><td id="li-sl-amt">0.00</td></tr>
-                                <tr><td>VAT on System Loss (11.09%)</td><td id="li-sl-vat-base">--</td><td>11.09%</td><td id="li-sl-vat-amt">0.00</td></tr>
+                                <tr>
+                                    <td>System Loss Charge</td>
+                                    <td id="li-sl-base">--</td>
+                                    <td><input type="number" id="rate-sl" value="0.6992" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-sl-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>VAT on System Loss</td>
+                                    <td id="li-sl-vat-base">--</td>
+                                    <td class="flex justify-end items-center gap-1"><input type="number" id="rate-sl-vat" value="11.09" step="0.01" class="table-input pct-input" oninput="calculateBill()"><span>%</span></td>
+                                    <td id="li-sl-vat-amt">0.00</td>
+                                </tr>
 
                                 <tr class="section-header-row"><td colspan="3">Distribution Charges (Meralco Utility)</td><td id="det-dist-total">0.00</td></tr>
-                                <tr><td>Demand Charge</td><td id="li-dist-demand-base">--</td><td>232.2000</td><td id="li-dist-demand-amt">0.00</td></tr>
-                                <tr><td>Energy Charge</td><td id="li-dist-energy-base">--</td><td>0.1339</td><td id="li-dist-energy-amt">0.00</td></tr>
+                                <tr>
+                                    <td>Demand Charge</td>
+                                    <td id="li-dist-demand-base">--</td>
+                                    <td><input type="number" id="rate-dist-demand" value="232.2000" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-dist-demand-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Energy Charge</td>
+                                    <td id="li-dist-energy-base">--</td>
+                                    <td><input type="number" id="rate-dist-energy" value="0.1339" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-dist-energy-amt">0.00</td>
+                                </tr>
                                 <tr><td>Power Factor Adjustment</td><td id="li-dist-pf-base">--</td><td id="li-dist-pf-pct">--</td><td id="li-dist-pf-amt">0.00</td></tr>
-                                <tr><td>Metering Charge</td><td>1.00 mo</td><td>3,451.57</td><td>3,451.57</td></tr>
-                                <tr><td>Supply Charge</td><td>1.00 mo</td><td>3,432.33</td><td>3,432.33</td></tr>
-                                <tr><td>VAT on Distribution (12.00%)</td><td id="li-dist-vat-base">--</td><td>12.00%</td><td id="li-dist-vat-amt">0.00</td></tr>
+                                <tr>
+                                    <td>Metering Charge</td>
+                                    <td>1.00 mo</td>
+                                    <td><input type="number" id="rate-metering" value="3451.57" step="0.01" class="table-input" oninput="calculateBill()"></td>
+                                    <td><span id="disp-metering">3,451.57</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Supply Charge</td>
+                                    <td>1.00 mo</td>
+                                    <td><input type="number" id="rate-supply" value="3432.33" step="0.01" class="table-input" oninput="calculateBill()"></td>
+                                    <td><span id="disp-supply">3,432.33</span></td>
+                                </tr>
+                                <tr>
+                                    <td>VAT on Distribution</td>
+                                    <td id="li-dist-vat-base">--</td>
+                                    <td class="flex justify-end items-center gap-1"><input type="number" id="rate-dist-vat" value="12.00" step="0.01" class="table-input pct-input" oninput="calculateBill()"><span>%</span></td>
+                                    <td id="li-dist-vat-amt">0.00</td>
+                                </tr>
 
                                 <tr class="section-header-row"><td colspan="3">Universal Charges</td><td id="det-uc-total">0.00</td></tr>
-                                <tr><td>Missionary Elec for NPC-SPUG</td><td id="li-uc-spug-base">--</td><td>0.1949</td><td id="li-uc-spug-amt">0.00</td></tr>
-                                <tr><td>Missionary Elec for REDCI</td><td id="li-uc-redci-base">--</td><td>0.0044</td><td id="li-uc-redci-amt">0.00</td></tr>
-                                <tr><td>Environmental Fund</td><td id="li-uc-env-base">--</td><td>0.0025</td><td id="li-uc-env-amt">0.00</td></tr>
-                                <tr><td>NPC Stranded Debts</td><td id="li-uc-sd-base">--</td><td>0.0428</td><td id="li-uc-sd-amt">0.00</td></tr>
+                                <tr>
+                                    <td>Missionary Elec for NPC-SPUG</td>
+                                    <td id="li-uc-spug-base">--</td>
+                                    <td><input type="number" id="rate-uc-spug" value="0.1949" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-uc-spug-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Missionary Elec for REDCI</td>
+                                    <td id="li-uc-redci-base">--</td>
+                                    <td><input type="number" id="rate-uc-redci" value="0.0044" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-uc-redci-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Environmental Fund</td>
+                                    <td id="li-uc-env-base">--</td>
+                                    <td><input type="number" id="rate-uc-env" value="0.0025" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-uc-env-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>NPC Stranded Debts</td>
+                                    <td id="li-uc-sd-base">--</td>
+                                    <td><input type="number" id="rate-uc-sd" value="0.0428" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-uc-sd-amt">0.00</td>
+                                </tr>
 
                                 <tr class="section-header-row text-emerald-700 font-black"><td colspan="3">Renewables & Subsidies (Actual Volume)</td><td id="det-subs-total">0.00</td></tr>
-                                <tr class="font-bold text-emerald-600"><td>FIT-All (Nov 2025 Rate)</td><td id="li-fit-base">--</td><td>0.2073</td><td id="li-fit-amt">0.00</td></tr>
-                                <tr class="font-bold text-emerald-600"><td>GEA-All</td><td id="li-gea-base">--</td><td>0.0371</td><td id="li-gea-amt">0.00</td></tr>
-                                <tr><td>Lifeline Rate Subsidy</td><td id="li-life-base">--</td><td>0.0008</td><td id="li-life-amt">0.00</td></tr>
-                                <tr><td>Senior Citizen Subsidy</td><td id="li-senior-base">--</td><td>0.0001</td><td id="li-senior-amt">0.00</td></tr>
+                                <tr class="font-bold text-emerald-600">
+                                    <td>FIT-All (Nov 2025 Rate)</td>
+                                    <td id="li-fit-base">--</td>
+                                    <td><input type="number" id="rate-fit" value="0.2073" step="0.0001" class="table-input text-emerald-600" oninput="calculateBill()"></td>
+                                    <td id="li-fit-amt">0.00</td>
+                                </tr>
+                                <tr class="font-bold text-emerald-600">
+                                    <td>GEA-All</td>
+                                    <td id="li-gea-base">--</td>
+                                    <td><input type="number" id="rate-gea" value="0.0371" step="0.0001" class="table-input text-emerald-600" oninput="calculateBill()"></td>
+                                    <td id="li-gea-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Lifeline Rate Subsidy</td>
+                                    <td id="li-life-base">--</td>
+                                    <td><input type="number" id="rate-life" value="0.0008" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-life-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Senior Citizen Subsidy</td>
+                                    <td id="li-senior-base">--</td>
+                                    <td><input type="number" id="rate-senior" value="0.0001" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-senior-amt">0.00</td>
+                                </tr>
 
                                 <tr class="section-header-row"><td colspan="3">Other Taxes & Adjustments</td><td id="det-tax-total">0.00</td></tr>
-                                <tr><td>Current RPT Charge</td><td id="li-rpt-base">--</td><td>0.0055</td><td id="li-rpt-amt">0.00</td></tr>
-                                <tr><td>Local Franchise Tax (Blended)</td><td id="li-lft-base">--</td><td>0.5000%</td><td id="li-lft-amt">0.00</td></tr>
-                                <tr class="italic text-slate-400"><td>Regulatory Reset Fee Adjustment</td><td id="li-reg-base">--</td><td>-0.0023</td><td id="li-reg-amt">0.00</td></tr>
-                                <tr class="italic text-slate-400"><td>AWAT Refund / Collect</td><td id="li-awat-base">--</td><td>-0.0587</td><td id="li-awat-amt">0.00</td></tr>
+                                <tr>
+                                    <td>Current RPT Charge</td>
+                                    <td id="li-rpt-base">--</td>
+                                    <td><input type="number" id="rate-rpt" value="0.0055" step="0.0001" class="table-input" oninput="calculateBill()"></td>
+                                    <td id="li-rpt-amt">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Local Franchise Tax (Blended)</td>
+                                    <td id="li-lft-base">--</td>
+                                    <td class="flex justify-end items-center gap-1"><input type="number" id="rate-lft" value="0.5000" step="0.0001" class="table-input pct-input" oninput="calculateBill()"><span>%</span></td>
+                                    <td id="li-lft-amt">0.00</td>
+                                </tr>
+                                <tr class="italic text-slate-400">
+                                    <td>Regulatory Reset Fee Adjustment</td>
+                                    <td id="li-reg-base">--</td>
+                                    <td><input type="number" id="rate-reg" value="-0.0023" step="0.0001" class="table-input text-slate-400" oninput="calculateBill()"></td>
+                                    <td id="li-reg-amt">0.00</td>
+                                </tr>
+                                <tr class="italic text-slate-400">
+                                    <td>AWAT Refund / Collect</td>
+                                    <td id="li-awat-base">--</td>
+                                    <td><input type="number" id="rate-awat" value="-0.0587" step="0.0001" class="table-input text-slate-400" oninput="calculateBill()"></td>
+                                    <td id="li-awat-amt">0.00</td>
+                                </tr>
 
                                 <tr id="li-export-row" class="export-row-standard transition-all duration-300">
                                     <td id="li-export-label" class="uppercase tracking-widest py-4 font-black">DER Export Energy Credit</td>
@@ -290,7 +425,7 @@
                         </div>
                         <div class="p-6 bg-emerald-50 border border-emerald-100 rounded-3xl flex flex-col justify-center text-center">
                             <p class="text-[10px] font-black text-emerald-600 uppercase mb-2 tracking-[0.2em]">Simple Payback Period</p>
-                            <p class="text-5xl font-black text-emerald-900" id="roi-payback">0.0 <span class="text-sm font-bold uppercase text-emerald-600">Years</span></p>
+                            <p class="text-5xl font-black text-emerald-900"><span id="roi-payback-val">0.0</span> <span class="text-sm font-bold uppercase text-emerald-600">Years</span></p>
                         </div>
                     </div>
                 </div>
@@ -440,7 +575,7 @@
                                 <div class="permit-item border-l-4 border-blue-500 bg-blue-50/30 p-4 rounded-r-lg mb-0">
                                     <h4 class="text-[11px] font-black text-blue-800 uppercase mb-2">Mandatory REC Metering</h4>
                                     <p class="text-[10px] text-slate-600 leading-relaxed">
-                                        Unlike Net-Metering (which uses a single bi-directional meter), DER requires a secondary <strong>REC Meter</strong> to measure the <em>total gross generation</em> of the RE system. This data is used for Renewable Portfolio Standards (RPS) compliance.
+                                        Unlike Net-Metering (which uses a single bi-directional meter), DER requires a secondary <strong>REC Meter</strong> to measure the <em>total gross generation</em> of the RE system. This data is used for Renewable Portfolio Standards (RPS) compliance. <strong>Note: No DSM charges shall be applied for the REC meter.</strong>
                                     </p>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
@@ -538,6 +673,40 @@
         }
 
         function calculateBill() {
+            // Helper to get rate from input
+            const getR = (id) => parseFloat(document.getElementById(id).value) || 0;
+
+            // Updated Rates (Fetched from UI inputs)
+            const rates = {
+                gen: getR('rate-gen'), 
+                genVat: getR('rate-gen-vat') / 100, 
+                trans: getR('rate-trans'), 
+                transVat: getR('rate-trans-vat') / 100, 
+                sl: getR('rate-sl'), 
+                slVat: getR('rate-sl-vat') / 100,
+                distDemand: getR('rate-dist-demand'), 
+                distEnergy: getR('rate-dist-energy'), 
+                distFixed: getR('rate-metering') + getR('rate-supply'), // Sum of fixed charges
+                distVat: getR('rate-dist-vat') / 100,
+                ucSpug: getR('rate-uc-spug'), 
+                ucRedci: getR('rate-uc-redci'), 
+                ucEnv: getR('rate-uc-env'), 
+                ucSd: getR('rate-uc-sd'),
+                fit: getR('rate-fit'), 
+                gea: getR('rate-gea'), 
+                life: getR('rate-life'), 
+                senior: getR('rate-senior'), 
+                rpt: getR('rate-rpt'), 
+                lft: getR('rate-lft') / 100, 
+                reg: getR('rate-reg'), 
+                awat: getR('rate-awat')
+            };
+            
+            // Update display for fixed charges (since input is separate)
+            setUI('disp-metering', formatNumber(getR('rate-metering')));
+            setUI('disp-supply', formatNumber(getR('rate-supply')));
+
+
             // Updated to fetch kWp instead of MWp
             const derKWp = parseFloat(document.getElementById('derCapacityKWp').value) || 0;
             const cf = parseFloat(document.getElementById('capacityFactor').value) || 0;
@@ -556,15 +725,6 @@
             const isCapped = exportKwh > exportLimit;
             const compExport = isCapped ? exportLimit : exportKwh;
             const actualConsumption = importKwh - exportKwh + solarGen;
-
-            // Updated Rates (Jan 2026 Meralco Technical Rates)
-            const rates = {
-                gen: 7.7471, genVat: 0.1113, trans: 346.11, transVat: 0.1082, sl: 0.6992, slVat: 0.1109,
-                distDemand: 232.20, distEnergy: 0.1339, distFixed: 6883.90, distVat: 0.12,
-                ucSpug: 0.1949, ucRedci: 0.0044, ucEnv: 0.0025, ucSd: 0.0428,
-                fit: 0.2073, gea: 0.0371, life: 0.0008, senior: 0.0001, 
-                rpt: 0.0055, lft: 0.005, reg: -0.0023, awat: -0.0587
-            };
 
             // Common Components
             const genAmt = importKwh * rates.gen;
@@ -632,7 +792,7 @@
             setUI('footer-gross', formatNumber(grossTotal)); setUI('footer-export', "- " + formatNumber(derCredit)); setUI('footer-total', "₱ " + formatNumber(netAmount));
 
             // Analytics Panel UI
-            setUI('roi-total-capex', "₱ " + formatNumber(totalCapex)); setUI('roi-monthly-savings', "₱ " + formatNumber(monthlySavings)); setUI('roi-payback', paybackYears.toFixed(1));
+            setUI('roi-total-capex', "₱ " + formatNumber(totalCapex)); setUI('roi-monthly-savings', "₱ " + formatNumber(monthlySavings)); setUI('roi-payback-val', paybackYears.toFixed(1));
             setUI('comp-trad', "₱ " + formatNumber(traditionalTotal)); setUI('comp-trad-util', "₱ " + formatNumber(traditionalTotal));
             setUI('comp-der-exp', "₱ " + formatNumber(netAmount)); setUI('comp-der-exp-util', "₱ " + formatNumber(netAmount));
             setUI('comp-der-ppa', "₱ " + formatNumber(ppaTotal)); setUI('comp-der-ppa-util', "₱ " + formatNumber(gridImportBill)); setUI('comp-der-ppa-contract', "₱ " + formatNumber(solarPayment));
