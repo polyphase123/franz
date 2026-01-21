@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DER Simulator - Executive Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; }
+        .input-group label { display: block; font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+        .input-group input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; font-size: 0.9rem; outline: none; transition: all 0.2s ease; background: #fdfdfd; }
+        .input-group input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        .tab-btn { padding: 0.6rem 1.2rem; font-weight: 700; font-size: 0.8rem; border-radius: 8px; transition: all 0.2s; border: 1px solid transparent; }
+        .tab-btn.active { background: #1e293b; color: white; }
+        
+        .meralco-table { width: 100%; border-collapse: collapse; }
+        .meralco-table th { font-size: 0.65rem; font-weight: 900; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; padding: 0.75rem 0.5rem; text-align: right; }
+        .meralco-table th:first-child { text-align: left; }
+        .meralco-table td { font-size: 0.75rem; padding: 0.5rem; border-bottom: 1px solid #f8fafc; color: #475569; text-align: right; }
+        .meralco-table td:first-child { text-align: left; }
+        .section-header-row td { background-color: #f8fafc; font-weight: 800; color: #1e293b; font-size: 0.8rem; }
+        
+        .export-row-standard { background-color: #ecfdf5 !important; color: #065f46 !important; font-weight: 900 !important; border-left: 4px solid #10b981 !important; }
+        .export-row-standard td { color: #065f46 !important; border-bottom-color: #d1fae5 !important; }
+        
+        .actual-kwh-highlight { background: #eff6ff; border-left: 4px solid #2563eb; padding: 1.25rem; margin-bottom: 1.5rem; border-radius: 0 12px 12px 0; }
+        .badge-rejected { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; }
+        .permit-item { border-left: 2px solid #e2e8f0; padding-left: 1rem; margin-bottom: 1.5rem; }
+        .advisory-box { background: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+        
+        .info-pill { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+        .gov-sub-header { font-size: 11px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; display: block; border-left: 3px solid #3b82f6; padding-left: 0.75rem; }
+        .roadmap-step { position: relative; padding-left: 2.5rem; border-left: 2px solid #e2e8f0; padding-bottom: 2rem; }
+        .roadmap-step:last-child { border-left-color: transparent; padding-bottom: 0; }
+        .roadmap-step::before { content: ''; position: absolute; left: -10px; top: 0; height: 18px; width: 18px; background: white; border: 3px solid #3b82f6; border-radius: 9999px; }
+
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; }
+        .comp-col { @apply p-4 rounded-xl border border-slate-100 flex flex-col; }
+        .comp-label { @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1; }
+        .comp-val { @apply text-base font-black text-slate-900; }
+
+        /* Print formatting */
+        @media print {
+            body { background: white !important; padding: 0 !important; }
+            .no-print { display: none !important; }
+            .card { border: 1px solid #eee !important; box-shadow: none !important; margin-bottom: 20px !important; break-inside: avoid; }
+            .max-w-7xl { width: 100% !important; max-width: 100% !important; margin: 0 !important; }
+            #tab-bill-content, #tab-analytics-content { display: block !important; }
+            .lg\:col-span-3 { display: none !important; }
+            .lg\:col-span-9, .lg\:col-span-12 { width: 100% !important; }
+            .actual-kwh-highlight { border: 1px solid #blue-200 !important; }
+            .meralco-table th, .meralco-table td { font-size: 10px !important; }
+            .pricing-hero { font-size: 48px !important; }
+        }
+    </style>
+</head>
+<body class="p-4 lg:p-8" id="main-body">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 no-print">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight italic uppercase">DER <span class="not-italic text-slate-500 font-medium tracking-normal">SIMULATOR</span></h1>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                    Jan 2026 Schedule • ERC Advisory
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <div class="flex bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+                    <button onclick="switchTab('bill')" id="btn-bill" class="tab-btn active">Itemized Bill</button>
+                    <button onclick="switchTab('analytics')" id="btn-analytics" class="tab-btn text-slate-500">Analytics & Comparison</button>
+                    <button onclick="switchTab('flow')" id="btn-flow" class="tab-btn text-slate-500">Governance & Roadmap</button>
+                </div>
+                <button onclick="window.print()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-black uppercase hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 012-2H5a2 2 0 012 2v4a2 2 0 002 2zM15 11h.01"></path></svg>
+                    Print Report
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: BILLING SIMULATOR -->
+        <div id="tab-bill-content" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-3 space-y-4 no-print">
+                <div class="card p-5 bg-slate-50/50">
+                    <h2 class="text-[10px] font-black text-slate-900 mb-4 uppercase tracking-widest">Input Parameters</h2>
+                    <div class="space-y-3">
+                        <div class="input-group">
+                            <label>DER Capacity (MWp)</label>
+                            <input type="number" id="derCapacityMWp" value="0.45" step="0.01" oninput="calculateBill()">
+                        </div>
+                        <div class="input-group">
+                            <label>Solar Capacity Factor (%)</label>
+                            <input type="number" id="capacityFactor" value="18" step="0.1" oninput="calculateBill()">
+                        </div>
+                        <div class="input-group">
+                            <label>Grid Import (kWh)</label>
+                            <input type="number" id="importKwh" value="97800" oninput="calculateBill()">
+                        </div>
+                        <div class="input-group">
+                            <label class="flex flex-col">
+                                <span class="flex justify-between items-center">
+                                    Solar Export (kWh) 
+                                    <span class="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-black" id="label-export-limit">Limit: 0</span>
+                                </span>
+                                <span class="text-[8px] text-slate-400 normal-case font-bold mt-1">Note: Excess beyond 30% uncompensated.</span>
+                            </label>
+                            <input type="number" id="exportKwh" value="5000" oninput="calculateBill()">
+                        </div>
+                        <div class="input-group">
+                            <label>Billed Demand (kW)</label>
+                            <input type="number" id="demandKw" value="405" oninput="calculateBill()">
+                        </div>
+                        <div class="input-group">
+                            <label>Power Factor (%)</label>
+                            <input type="number" id="powerFactor" value="98.84" step="0.01" oninput="calculateBill()">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sideStatusCard" class="card p-5 bg-slate-900 text-white shadow-lg transition-colors duration-300">
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="text-[10px] font-black uppercase opacity-60 tracking-widest">Amount Payable</p>
+                        <span id="sideRejectionBadge" class="hidden badge-rejected uppercase">CAPPED</span>
+                    </div>
+                    <h2 class="text-3xl font-black tracking-tighter" id="sideTotal">₱ 0.00</h2>
+                    <div class="mt-4 pt-4 border-t border-white/10">
+                        <p class="text-[9px] font-bold uppercase opacity-60 text-emerald-400">REC Meter Mandatory</p>
+                        <p class="text-[8px] font-bold uppercase opacity-50">No DSM Charges Applied</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-9 space-y-6">
+                <!-- Actual Consumption Breakdown -->
+                <div class="actual-kwh-highlight" id="actual-cons-box">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xs font-black text-blue-900 uppercase tracking-widest">Actual Consumption Volume (kWh)</h3>
+                        <span class="text-[9px] font-black bg-blue-600 text-white px-2 py-0.5 rounded uppercase tracking-tighter">Mandatory REC Volume</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center mb-4 text-center md:text-left">
+                        <div class="bg-white p-3 rounded-lg border border-blue-100">
+                            <p class="text-[9px] text-slate-400 font-black uppercase mb-1">Grid Import</p>
+                            <p class="text-lg font-bold text-slate-800" id="math-import">97,800</p>
+                        </div>
+                        <div class="font-bold text-blue-400 italic text-center">minus</div>
+                        <div class="bg-white p-3 rounded-lg border border-blue-100">
+                            <p class="text-[9px] text-slate-400 font-black uppercase mb-1">Solar Export</p>
+                            <p class="text-lg font-bold text-slate-800" id="math-export">5,000</p>
+                        </div>
+                        <div class="font-bold text-blue-400 md:hidden text-center">plus</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center text-center md:text-left">
+                        <div class="bg-white p-3 rounded-lg border border-blue-100">
+                            <p class="text-[9px] text-slate-400 font-black uppercase mb-1">Solar Generated</p>
+                            <p class="text-lg font-bold text-slate-800" id="math-gen">60,264</p>
+                        </div>
+                        <div class="font-bold text-blue-400 italic text-center">equals</div>
+                        <div class="bg-blue-600 p-3 rounded-lg col-span-1 md:col-span-2 shadow-sm">
+                            <p class="text-[9px] text-blue-100 font-black uppercase mb-1">Total Billing Base</p>
+                            <p class="text-xl font-black text-white" id="math-actual">153,064 actual kWh</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card overflow-hidden">
+                    <div class="bg-slate-50 border-b border-slate-100 p-8 flex justify-between items-center">
+                        <h2 class="text-base font-black text-slate-800 uppercase tracking-tight">Statement Details</h2>
+                        <div class="flex items-center gap-6">
+                            <div class="text-right">
+                                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 text-right">Pricing Tier</p>
+                                <span class="text-6xl font-black text-slate-900 italic block pricing-hero" id="tierDisp">75%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 overflow-x-auto">
+                        <table class="meralco-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Description</th>
+                                    <th>Base</th>
+                                    <th>Price</th>
+                                    <th>Amount (PhP)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="section-header-row"><td colspan="3">Generation Charge</td><td id="det-gen-total">0.00</td></tr>
+                                <tr><td>Generation Charge (Grid Import)</td><td id="li-gen-base">--</td><td>7.7471</td><td id="li-gen-amt">0.00</td></tr>
+                                <tr><td>VAT on Generation (11.13%)</td><td id="li-gen-vat-base">--</td><td>11.13%</td><td id="li-gen-vat-amt">0.00</td></tr>
+
+                                <tr class="section-header-row"><td colspan="3">Transmission Charge</td><td id="det-trans-total">0.00</td></tr>
+                                <tr><td>Transmission Demand Charge</td><td id="li-trans-base">--</td><td>346.1100</td><td id="li-trans-amt">0.00</td></tr>
+                                <tr><td>VAT on Transmission (10.82%)</td><td id="li-trans-vat-base">--</td><td>10.82%</td><td id="li-trans-vat-amt">0.00</td></tr>
+
+                                <tr class="section-header-row"><td colspan="3">System Loss Charge</td><td id="det-sl-total">0.00</td></tr>
+                                <tr><td>System Loss Charge</td><td id="li-sl-base">--</td><td>0.6992</td><td id="li-sl-amt">0.00</td></tr>
+                                <tr><td>VAT on System Loss (11.09%)</td><td id="li-sl-vat-base">--</td><td>11.09%</td><td id="li-sl-vat-amt">0.00</td></tr>
+
+                                <tr class="section-header-row"><td colspan="3">Distribution Charges (Meralco Utility)</td><td id="det-dist-total">0.00</td></tr>
+                                <tr><td>Demand Charge</td><td id="li-dist-demand-base">--</td><td>232.2000</td><td id="li-dist-demand-amt">0.00</td></tr>
+                                <tr><td>Energy Charge</td><td id="li-dist-energy-base">--</td><td>0.1339</td><td id="li-dist-energy-amt">0.00</td></tr>
+                                <tr><td>Power Factor Adjustment</td><td id="li-dist-pf-base">--</td><td id="li-dist-pf-pct">--</td><td id="li-dist-pf-amt">0.00</td></tr>
+                                <tr><td>Metering Charge</td><td>1.00 mo</td><td>3,451.57</td><td>3,451.57</td></tr>
+                                <tr><td>Supply Charge</td><td>1.00 mo</td><td>3,432.33</td><td>3,432.33</td></tr>
+                                <tr><td>VAT on Distribution (12.00%)</td><td id="li-dist-vat-base">--</td><td>12.00%</td><td id="li-dist-vat-amt">0.00</td></tr>
+
+                                <tr class="section-header-row"><td colspan="3">Universal Charges</td><td id="det-uc-total">0.00</td></tr>
+                                <tr><td>Missionary Elec for NPC-SPUG</td><td id="li-uc-spug-base">--</td><td>0.1949</td><td id="li-uc-spug-amt">0.00</td></tr>
+                                <tr><td>Missionary Elec for REDCI</td><td id="li-uc-redci-base">--</td><td>0.0044</td><td id="li-uc-redci-amt">0.00</td></tr>
+                                <tr><td>Environmental Fund</td><td id="li-uc-env-base">--</td><td>0.0025</td><td id="li-uc-env-amt">0.00</td></tr>
+                                <tr><td>NPC Stranded Debts</td><td id="li-uc-sd-base">--</td><td>0.0428</td><td id="li-uc-sd-amt">0.00</td></tr>
+
+                                <tr class="section-header-row text-emerald-700 font-black"><td colspan="3">Renewables & Subsidies (Actual Volume)</td><td id="det-subs-total">0.00</td></tr>
+                                <tr class="font-bold text-emerald-600"><td>FIT-All (Nov 2025 Rate)</td><td id="li-fit-base">--</td><td>0.2073</td><td id="li-fit-amt">0.00</td></tr>
+                                <tr class="font-bold text-emerald-600"><td>GEA-All</td><td id="li-gea-base">--</td><td>0.0371</td><td id="li-gea-amt">0.00</td></tr>
+                                <tr><td>Lifeline Rate Subsidy</td><td id="li-life-base">--</td><td>0.0008</td><td id="li-life-amt">0.00</td></tr>
+                                <tr><td>Senior Citizen Subsidy</td><td id="li-senior-base">--</td><td>0.0001</td><td id="li-senior-amt">0.00</td></tr>
+
+                                <tr class="section-header-row"><td colspan="3">Other Taxes & Adjustments</td><td id="det-tax-total">0.00</td></tr>
+                                <tr><td>Current RPT Charge</td><td id="li-rpt-base">--</td><td>0.0055</td><td id="li-rpt-amt">0.00</td></tr>
+                                <tr><td>Local Franchise Tax (Blended)</td><td id="li-lft-base">--</td><td>0.5000%</td><td id="li-lft-amt">0.00</td></tr>
+                                <tr class="italic text-slate-400"><td>Regulatory Reset Fee Adjustment</td><td id="li-reg-base">--</td><td>-0.0023</td><td id="li-reg-amt">0.00</td></tr>
+                                <tr class="italic text-slate-400"><td>AWAT Refund / Collect</td><td id="li-awat-base">--</td><td>-0.0587</td><td id="li-awat-amt">0.00</td></tr>
+
+                                <tr id="li-export-row" class="export-row-standard transition-all duration-300">
+                                    <td id="li-export-label" class="uppercase tracking-widest py-4 font-black">DER Export Energy Credit</td>
+                                    <td id="li-export-base" class="py-4 font-bold">--</td>
+                                    <td id="li-export-price" class="py-4 font-bold">--</td>
+                                    <td id="det-der-credit" class="py-4 font-black text-emerald-800 text-lg">- 0.00</td>
+                                </tr>
+                                <tr id="li-excess-row" class="hidden text-[10px] text-rose-600 font-bold bg-rose-50 border-t border-rose-100">
+                                    <td class="py-2">Surplus Export Volume (Beyond 30% Cap - Not Paid)</td>
+                                    <td id="li-excess-base" class="py-2">--</td>
+                                    <td class="py-2">0.0000</td>
+                                    <td class="py-2">0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-slate-900 p-8 text-white grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-white/10">
+                        <div class="space-y-1 opacity-80">
+                            <div class="flex justify-between text-[10px] font-black uppercase"><span>Gross Energy Amount:</span> <span id="footer-gross">0.00</span></div>
+                            <div class="flex justify-between text-[10px] font-black uppercase text-emerald-400"><span>Applied Export Credit:</span> <span id="footer-export">- 0.00</span></div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Final Net Amount Payable</p>
+                            <p class="text-5xl font-black tracking-tighter text-white" id="footer-total">₱ 0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: ANALYTICS & COMPARISON -->
+        <div id="tab-analytics-content" class="hidden space-y-6">
+            <!-- ROI PANEL -->
+            <div class="card p-8 border-t-4 border-blue-600">
+                <div class="flex flex-col md:flex-row justify-between gap-8">
+                    <div class="md:w-1/3 space-y-6">
+                        <h3 class="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            ROI Calculator
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="input-group">
+                                <label>Investment per kWp (PhP)</label>
+                                <input type="number" id="roi-cost-kw" value="30000" oninput="calculateBill()" class="input-premium">
+                            </div>
+                            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                <p class="text-[10px] font-black text-slate-400 uppercase">Total Estimated CAPEX</p>
+                                <p class="text-xl font-black text-slate-900" id="roi-total-capex">₱ 0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-6 bg-blue-600 text-white rounded-3xl shadow-xl shadow-blue-100 flex flex-col justify-center">
+                            <p class="text-[10px] font-black uppercase opacity-60 mb-2">Monthly Cash Flow Benefit</p>
+                            <p class="text-4xl font-black" id="roi-monthly-savings">₱ 0.00</p>
+                            <p class="text-[10px] mt-4 opacity-80 font-medium">Monthly Savings vs Traditional Grid Billing.</p>
+                        </div>
+                        <div class="p-6 bg-emerald-50 border border-emerald-100 rounded-3xl flex flex-col justify-center text-center">
+                            <p class="text-[10px] font-black text-emerald-600 uppercase mb-2 tracking-[0.2em]">Simple Payback Period</p>
+                            <p class="text-5xl font-black text-emerald-900" id="roi-payback">0.0 <span class="text-sm font-bold uppercase text-emerald-600">Years</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPARISON PANEL -->
+            <div class="card p-8 border-t-4 border-slate-900">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xl font-black text-slate-900 uppercase tracking-tight">Scenario Comparison Dashboard</h3>
+                    <div class="bg-slate-50 p-2 rounded-xl border border-slate-100 flex items-center gap-3">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">PPA Rate (Developer Contract):</label>
+                        <input type="number" id="ppa-rate" value="10.50" step="0.1" oninput="calculateBill()" class="w-20 px-2 py-1 bg-white border border-blue-200 rounded text-xs font-bold text-blue-900 outline-none">
+                        <span class="text-[10px] font-bold text-slate-400">/kWh</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Scenario 1: Traditional -->
+                    <div class="p-6 rounded-3xl border border-slate-100 bg-white relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM5 9a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z"></path></svg>
+                        </div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">A. Traditional Grid</p>
+                        <p class="text-4xl font-black text-slate-900 mb-6" id="comp-trad">₱ 0.00</p>
+                        <div class="space-y-3 pt-6 border-t border-slate-50">
+                            <div class="flex justify-between text-[11px] font-bold">
+                                <span class="text-slate-400 uppercase">Utility Pymt</span>
+                                <span class="text-slate-700" id="comp-trad-util">₱ 0.00</span>
+                            </div>
+                            <div class="flex justify-between text-[11px] font-bold">
+                                <span class="text-slate-400 uppercase">Solar Pymt</span>
+                                <span class="text-slate-300">N/A</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 2: DER Exporting -->
+                    <div class="p-6 rounded-3xl border border-emerald-100 bg-emerald-50/50 relative overflow-hidden shadow-lg shadow-emerald-50 ring-2 ring-emerald-500 ring-offset-2">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <svg class="w-12 h-12 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM5.884 6.607a1 1 0 011.414 0l.707.707a1 1 0 11-1.414 1.414l-.707-.707a1 1 0 010-1.414zm9.9 0a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM3 11a1 1 0 100-2H2a1 1 0 100 2h1zm15 0a1 1 0 100-2h-1a1 1 0 100 2h1zM5.05 15.05a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm9.9 0a1 1 0 010 1.414l-.707.707a1 1 0-1.414-1.414l.707-.707a1 1 0 010 1.414zM10 11a1 1 0 100-2 1 1 0 000 2z"></path></svg>
+                        </div>
+                        <p class="text-[10px] font-black text-emerald-600 uppercase mb-4 tracking-widest">B. DER Exporting (Current)</p>
+                        <p class="text-4xl font-black text-emerald-900 mb-6" id="comp-der-exp">₱ 0.00</p>
+                        <div class="space-y-3 pt-6 border-t border-emerald-100">
+                            <div class="flex justify-between text-[11px] font-bold">
+                                <span class="text-emerald-600 uppercase opacity-60">Utility Pymt</span>
+                                <span class="text-emerald-900" id="comp-der-exp-util">₱ 0.00</span>
+                            </div>
+                            <div class="flex justify-between text-[11px] font-bold">
+                                <span class="text-emerald-600 uppercase opacity-60">Solar Pymt</span>
+                                <span class="text-emerald-900">₱ 0.00 (Self-Owned)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 3: DER Non-Exporting PPA -->
+                    <div class="p-6 rounded-3xl border border-blue-100 bg-blue-50/50 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6h10v6H6v-6z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <p class="text-[10px] font-black text-blue-600 uppercase mb-4 tracking-widest">C. Non-Exporting (PPA)</p>
+                        <p class="text-4xl font-black text-blue-900 mb-6" id="comp-der-ppa">₱ 0.00</p>
+                        <div class="space-y-3 pt-6 border-t border-blue-100">
+                            <div class="flex justify-between text-[11px] font-bold">
+                                <span class="text-blue-600 uppercase opacity-60">Utility Pymt</span>
+                                <span class="text-blue-900" id="comp-der-ppa-util">₱ 0.00</span>
+                            </div>
+                            <div class="flex justify-between text-[11px] font-bold">
+                                <span class="text-blue-600 uppercase opacity-60">Developer Pymt</span>
+                                <span class="text-blue-900 font-black" id="comp-der-ppa-contract">₱ 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: GOVERNANCE -->
+        <div id="tab-flow-content" class="hidden space-y-6">
+             <div class="card p-10 bg-white border-t-4 border-slate-900 shadow-xl relative overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
+                    <div class="space-y-12">
+                        <section>
+                            <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-6">1. Regulatory Framework Deep-Dive</h3>
+                            <div class="permit-item border-slate-900 bg-slate-50 p-5 rounded-r-xl">
+                                <p class="text-[11px] leading-relaxed text-slate-600 font-medium italic">
+                                    "Distributed Energy Resources" (DER) are power sources connected to the distribution system on the customer-side. Regulation ensures technical synchronism and fair value compensation.
+                                </p>
+                            </div>
+                            <div class="mt-8 space-y-6">
+                                <div>
+                                    <span class="info-pill bg-blue-100 text-blue-700 uppercase">Exporting Class (RE)</span>
+                                    <p class="text-xs text-slate-500 font-medium leading-relaxed">On-grid nameplate capacity: <strong>100kW - 1MW</strong>. Payment for excess energy is strictly capped at <strong>30%</strong> of nameplate production capacity.</p>
+                                </div>
+                                <div>
+                                    <span class="info-pill bg-slate-100 text-slate-600 uppercase">Non-Exporting Class</span>
+                                    <p class="text-xs text-slate-500 font-medium leading-relaxed">Applicable to all technologies. Consumption is restricted to End-User internal load. No MW capacity limit for internal use.</p>
+                                </div>
+                            </div>
+                        </section>
+                        <section>
+                            <h4 class="gov-sub-header">2. Pricing Methodology</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-4 border-2 border-emerald-100 rounded-2xl text-center">
+                                    <p class="text-[10px] font-black text-emerald-400 mb-1">100kW - 500kW</p>
+                                    <p class="text-2xl font-black text-emerald-600">75%</p>
+                                    <p class="text-[9px] text-slate-400">Of Blended Gen Rate</p>
+                                </div>
+                                <div class="p-4 border-2 border-emerald-100 rounded-2xl text-center">
+                                    <p class="text-[10px] font-black text-emerald-400 mb-1">501kW - 1MW</p>
+                                    <p class="text-2xl font-black text-emerald-600">60%</p>
+                                    <p class="text-[9px] text-slate-400">Of Blended Gen Rate</p>
+                                </div>
+                            </div>
+                            <div class="advisory-box">
+                                <h5 class="text-xs font-black text-amber-900 uppercase mb-2 flex items-center gap-2">ERC Advisory: No Wheeling Charges</h5>
+                                <p class="text-[11px] text-amber-800 leading-relaxed font-medium">Distribution Utilities are prohibited from deducting usage fees from DER export credits. Compensation is strictly based on the generation rate percentage.</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="space-y-12">
+                        <section>
+                            <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-6">3. Technical & Process</h3>
+                            <div class="permit-item border-blue-600 bg-blue-50/20 p-5 rounded-r-2xl">
+                                <h4 class="text-xs font-black text-blue-600 uppercase mb-3">Mandatory REC Meter</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed mb-4">Exporting DER are <strong>required</strong> to install an REC Meter for measuring total actual RE generation. No DSM Charges apply for REC metering.</p>
+                                <div class="grid grid-cols-2 gap-3 text-[9px] font-black uppercase text-blue-800">
+                                    <div class="bg-blue-100 p-2 rounded">No DSM Charges</div>
+                                    <div class="bg-blue-100 p-2 rounded">RPS Metering</div>
+                                </div>
+                            </div>
+                        </section>
+                        <section>
+                            <h4 class="gov-sub-header">4. Regulatory Roadmap (60 Days)</h4>
+                            <div class="ml-2">
+                                <div class="roadmap-step"><p class="text-xs font-black text-slate-900 uppercase">Assessment (Day 1-3)</p><p class="text-[10px] text-slate-400 font-medium">Filing verification and issuance of SOA.</p></div>
+                                <div class="roadmap-step border-blue-500"><p class="text-xs font-black text-blue-600 uppercase">Technical Inspection</p><p class="text-[10px] text-slate-400 font-medium">Grid synchronism and safety audit.</p></div>
+                                <div class="roadmap-step border-emerald-500"><p class="text-xs font-black text-emerald-600 uppercase">COC Issuance (Day 60)</p><p class="text-[10px] text-slate-400 font-medium">Release of Certificate of Compliance.</p></div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </div>
+
+    <script>
+        const formatNumber = (num) => num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const setUI = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+
+        function switchTab(view) {
+            const bill = document.getElementById('tab-bill-content');
+            const flow = document.getElementById('tab-flow-content');
+            const analytics = document.getElementById('tab-analytics-content');
+            const btns = ['btn-bill', 'btn-flow', 'btn-analytics'];
+            
+            if (bill) bill.classList.toggle('hidden', view !== 'bill');
+            if (flow) flow.classList.toggle('hidden', view !== 'flow');
+            if (analytics) analytics.classList.toggle('hidden', view !== 'analytics');
+            
+            btns.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.className = (id === 'btn-' + view) ? "tab-btn active" : "tab-btn text-slate-500";
+            });
+        }
+
+        function calculateBill() {
+            const derMWp = parseFloat(document.getElementById('derCapacityMWp').value) || 0;
+            const cf = parseFloat(document.getElementById('capacityFactor').value) || 0;
+            const importKwh = parseFloat(document.getElementById('importKwh').value) || 0;
+            const exportKwh = parseFloat(document.getElementById('exportKwh').value) || 0;
+            const demandKw = parseFloat(document.getElementById('demandKw').value) || 0;
+            const pfInput = parseFloat(document.getElementById('powerFactor').value) || 0;
+            const investPerKw = parseFloat(document.getElementById('roi-cost-kw').value) || 0;
+            const ppaRate = parseFloat(document.getElementById('ppa-rate').value) || 0;
+
+            const solarKw = derMWp * 1000;
+            const solarGen = solarKw * 24 * 31 * (cf / 100);
+            const exportLimit = solarGen * 0.3;
+            const isCapped = exportKwh > exportLimit;
+            const compExport = isCapped ? exportLimit : exportKwh;
+            const actualConsumption = importKwh - exportKwh + solarGen;
+
+            // Updated Rates (Jan 2026 Meralco Technical Rates)
+            const rates = {
+                gen: 7.7471, genVat: 0.1113, trans: 346.11, transVat: 0.1082, sl: 0.6992, slVat: 0.1109,
+                distDemand: 232.20, distEnergy: 0.1339, distFixed: 6883.90, distVat: 0.12,
+                ucSpug: 0.1949, ucRedci: 0.0044, ucEnv: 0.0025, ucSd: 0.0428,
+                fit: 0.2073, gea: 0.0371, life: 0.0008, senior: 0.0001, 
+                rpt: 0.0055, lft: 0.005, reg: -0.0023, awat: -0.0587
+            };
+
+            // Common Components
+            const genAmt = importKwh * rates.gen;
+            const genVat = genAmt * rates.genVat;
+            const transAmt = demandKw * rates.trans;
+            const transVat = transAmt * rates.transVat;
+            const slAmt = importKwh * rates.sl;
+            const slVat = slAmt * rates.slVat;
+            const distBase = (demandKw * rates.distDemand) + (importKwh * rates.distEnergy) + rates.distFixed;
+            const pfFact = (pfInput >= 95) ? (0.95 / (pfInput/100) - 1) : 0;
+            const pfAdj = distBase * pfFact;
+            const distTotalWithPf = distBase + pfAdj;
+            const distVat = distTotalWithPf * rates.distVat;
+            const ucTotal = importKwh * (rates.ucSpug + rates.ucRedci + rates.ucEnv + rates.ucSd);
+            const subsTotal = actualConsumption * (rates.fit + rates.gea + rates.life + rates.senior);
+            const taxTotal = importKwh * rates.rpt + (genAmt + genVat + transAmt + transVat + slAmt + slVat + distTotalWithPf + distVat) * rates.lft + importKwh * (rates.reg + rates.awat);
+
+            const grossTotal = (genAmt + genVat) + (transAmt + transVat) + (slAmt + slVat) + (distTotalWithPf + distVat) + ucTotal + subsTotal + taxTotal;
+            let derMult = (solarKw > 500) ? 0.60 : 0.75;
+            const exportPrice = rates.gen * derMult;
+            const derCredit = compExport * exportPrice;
+            const netAmount = grossTotal - derCredit;
+
+            // Scenario 1: Traditional (No DER)
+            // Assumes total Consumption is bought from grid
+            const tradVolume = importKwh + (solarGen - exportKwh);
+            const tradGen = tradVolume * rates.gen;
+            const tradTrans = demandKw * rates.trans;
+            const tradSl = tradVolume * rates.sl;
+            const tradDistBase = (demandKw * rates.distDemand) + (tradVolume * rates.distEnergy) + rates.distFixed;
+            const tradDistTotal = tradDistBase; // No PF adj assumed
+            const tradVat = (tradGen * rates.genVat) + (tradTrans * rates.transVat) + (tradSl * rates.slVat) + (tradDistTotal * rates.distVat);
+            const traditionalTotal = tradGen + tradTrans + tradSl + tradDistTotal + tradVat + (tradVolume * (rates.ucSpug + rates.ucRedci + rates.ucEnv + rates.ucSd)) + (tradVolume * (rates.fit + rates.gea + rates.life + rates.senior)) + (tradVolume * rates.rpt);
+
+            // Scenario 3: PPA (Non-Exporting)
+            const solarPayment = solarGen * ppaRate;
+            const gridImportBill = grossTotal; // In non-export, you just pay the standard grid bill for import (no credit)
+            const ppaTotal = gridImportBill + solarPayment;
+
+            // ROI logic
+            const totalCapex = solarKw * investPerKw;
+            const monthlySavings = traditionalTotal - netAmount;
+            const paybackYears = monthlySavings > 0 ? (totalCapex / (monthlySavings * 12)) : 0;
+
+            // Update All UI
+            setUI('math-import', importKwh.toLocaleString());
+            setUI('math-export', exportKwh.toLocaleString());
+            setUI('math-gen', Math.round(solarGen).toLocaleString());
+            setUI('math-actual', Math.round(actualConsumption).toLocaleString() + " actual kWh");
+            setUI('sideTotal', "₱ " + formatNumber(netAmount));
+            setUI('sideEffRate', "₱ " + (importKwh > 0 ? (netAmount / importKwh).toFixed(2) : "0.00") + " /kWh");
+            setUI('label-export-limit', `Limit: ${Math.round(exportLimit).toLocaleString()} kWh`);
+            setUI('tierDisp', (solarKw > 500 ? "60%" : "75%"));
+
+            // Table Component Updates
+            setUI('li-gen-base', importKwh.toLocaleString() + " kWh"); setUI('li-gen-amt', formatNumber(genAmt)); setUI('li-gen-vat-base', formatNumber(genAmt)); setUI('li-gen-vat-amt', formatNumber(genVat)); setUI('det-gen-total', formatNumber(genAmt + genVat));
+            setUI('li-trans-base', demandKw.toLocaleString() + " kW"); setUI('li-trans-amt', formatNumber(transAmt)); setUI('li-trans-vat-base', formatNumber(transAmt)); setUI('li-trans-vat-amt', formatNumber(transVat)); setUI('det-trans-total', formatNumber(transAmt + transVat));
+            setUI('li-sl-base', importKwh.toLocaleString() + " kWh"); setUI('li-sl-amt', formatNumber(slAmt)); setUI('li-sl-vat-base', formatNumber(slAmt)); setUI('li-sl-vat-amt', formatNumber(slVat)); setUI('det-sl-total', formatNumber(slAmt + slVat));
+            setUI('li-dist-demand-base', demandKw.toLocaleString() + " kW"); setUI('li-dist-demand-amt', formatNumber(demandKw * rates.distDemand)); setUI('li-dist-energy-base', importKwh.toLocaleString() + " kWh"); setUI('li-dist-energy-amt', formatNumber(importKwh * rates.distEnergy)); setUI('li-dist-pf-base', formatNumber(distBase)); setUI('li-dist-pf-pct', (pfFact * 100).toFixed(2) + "%"); setUI('li-dist-pf-amt', formatNumber(pfAdj)); setUI('li-dist-vat-base', formatNumber(distTotalWithPf)); setUI('li-dist-vat-amt', formatNumber(distVat)); setUI('det-dist-total', formatNumber(distTotalWithPf + distVat));
+            setUI('li-uc-spug-base', importKwh.toLocaleString() + " kWh"); setUI('li-uc-redci-base', importKwh.toLocaleString() + " kWh"); setUI('li-uc-env-base', importKwh.toLocaleString() + " kWh"); setUI('li-uc-sd-base', importKwh.toLocaleString() + " kWh"); setUI('li-uc-spug-amt', formatNumber(importKwh * rates.ucSpug)); setUI('li-uc-redci-amt', formatNumber(importKwh * rates.ucRedci)); setUI('li-uc-env-amt', formatNumber(importKwh * rates.ucEnv)); setUI('li-uc-sd-amt', formatNumber(importKwh * rates.ucSd)); setUI('det-uc-total', formatNumber(ucTotal));
+            const actLab = Math.round(actualConsumption).toLocaleString() + " actual kWh";
+            setUI('li-fit-base', actLab); setUI('li-gea-base', actLab); setUI('li-life-base', actLab); setUI('li-senior-base', actLab); setUI('li-fit-amt', formatNumber(actualConsumption * rates.fit)); setUI('li-gea-amt', formatNumber(actualConsumption * rates.gea)); setUI('li-life-amt', formatNumber(actualConsumption * rates.life)); setUI('li-senior-amt', formatNumber(actualConsumption * rates.senior)); setUI('det-subs-total', formatNumber(subsTotal));
+            setUI('li-rpt-base', importKwh.toLocaleString() + " kWh"); setUI('li-rpt-amt', formatNumber(importKwh * rates.rpt)); setUI('li-lft-base', formatNumber(genAmt + transAmt + slAmt + distTotalWithPf)); setUI('li-lft-amt', formatNumber((genAmt + transAmt + slAmt + distTotalWithPf) * rates.lft)); setUI('li-reg-base', importKwh.toLocaleString() + " kWh"); setUI('li-reg-amt', formatNumber(importKwh * rates.reg)); setUI('li-awat-base', importKwh.toLocaleString() + " kWh"); setUI('li-awat-amt', formatNumber(importKwh * rates.awat)); setUI('det-tax-total', formatNumber(taxTotal));
+            setUI('li-export-base', compExport.toLocaleString() + " kWh"); setUI('li-export-price', exportPrice.toFixed(4)); setUI('det-der-credit', "- " + formatNumber(derCredit));
+            setUI('footer-gross', formatNumber(grossTotal)); setUI('footer-export', "- " + formatNumber(derCredit)); setUI('footer-total', "₱ " + formatNumber(netAmount));
+
+            // Analytics Panel UI
+            setUI('roi-total-capex', "₱ " + formatNumber(totalCapex)); setUI('roi-monthly-savings', "₱ " + formatNumber(monthlySavings)); setUI('roi-payback', paybackYears.toFixed(1));
+            setUI('comp-trad', "₱ " + formatNumber(traditionalTotal)); setUI('comp-trad-util', "₱ " + formatNumber(traditionalTotal));
+            setUI('comp-der-exp', "₱ " + formatNumber(netAmount)); setUI('comp-der-exp-util', "₱ " + formatNumber(netAmount));
+            setUI('comp-der-ppa', "₱ " + formatNumber(ppaTotal)); setUI('comp-der-ppa-util', "₱ " + formatNumber(gridImportBill)); setUI('comp-der-ppa-contract', "₱ " + formatNumber(solarPayment));
+
+            const badgeEl = document.getElementById('sideRejectionBadge');
+            const complEl = document.getElementById('dashCompliance');
+            const exportRow = document.getElementById('li-export-row');
+            const excessRow = document.getElementById('li-excess-row');
+
+            if (isCapped) {
+                if(badgeEl) badgeEl.classList.remove('hidden');
+                if(exportRow) exportRow.className = "rejected-overlay transition-all duration-300";
+                if(excessRow) excessRow.classList.remove('hidden');
+                setUI('li-export-label', 'DER EXPORT CREDIT (CAPPED @ 30%)');
+                setUI('li-excess-base', formatNumber(exportKwh - exportLimit) + " kWh");
+                setUI('dashCompliance', 'Capped');
+            } else {
+                if(badgeEl) badgeEl.classList.add('hidden');
+                if(exportRow) exportRow.className = "export-row-standard transition-all duration-300";
+                if(excessRow) excessRow.classList.add('hidden');
+                setUI('li-export-label', 'DER EXPORT ENERGY CREDIT');
+                setUI('dashCompliance', 'Pass');
+            }
+        }
+
+        window.onload = calculateBill;
+    </script>
+</body>
+</html>
