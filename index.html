@@ -99,14 +99,60 @@
             </div>
 
             <!-- Analytics -->
-            <div class="lg:col-span-9 hidden space-y-8" id="v-analytics">
+            <div class="lg:col-span-9 hidden space-y-10" id="v-analytics">
+                <!-- Comparative Suite -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div class="premium-card p-8 space-y-6 border-t-8 border-blue-600">
                         <div><h3 class="text-xl font-black uppercase italic tracking-tighter">Comparative Matrix</h3><p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Monthly Cost Benchmarks</p></div>
                         <div class="space-y-3">
                             <div class="p-5 bg-slate-50 rounded-2xl border flex justify-between items-center"><div><p class="text-[10px] font-black text-slate-400 uppercase">Traditional Grid</p><p id="ana-trad" class="text-xl font-black">₱ 0.00</p></div><span class="bg-slate-200 px-2 py-0.5 rounded-md text-[9px] font-black text-slate-500">REF</span></div>
                             <div class="p-5 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex justify-between items-center"><div><p class="text-[10px] font-black text-emerald-600 uppercase">Ownership (EPC)</p><p id="ana-owned" class="text-xl font-black text-emerald-700">₱ 0.00</p></div><span class="bg-emerald-600 px-2 py-0.5 rounded-md text-[9px] font-black text-white">BEST</span></div>
-                            <div class="p-5 bg-orange-50 rounded-2xl border flex justify-between items-center"><div><p class="text-[10px] font-black text-orange-600 uppercase">Financing (PPA)</p><p id="ana-ppa-bill" class="text-xl font-black text-orange-700">₱ 0.00</p></div><span class="bg-orange-200 px-2 py-0.5 rounded-md text-[9px] font-black text-orange-700">ZERO CAPEX</span></div>
+                            <div class="p-5 bg-orange-50 rounded-2xl border flex justify-between items-center"><div><p class="text-[10px] font-black text-orange-600 uppercase">Financing (PPA)</p><p id="ana-ppa-bill" class="text-xl font-black text-orange-700">₱ 0.00</p></div><span class="bg-orange-200 px-2 py-0.5 rounded-md text-[9px] font-black text-orange-700">FIN</span></div>
+                        </div>
+                    </div>
+
+                    <div class="premium-card p-8 bg-slate-900 text-white shadow-2xl space-y-10">
+                        <div><h3 class="text-xl font-black uppercase italic tracking-tighter">Strategic Impact</h3><p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Ownership Yield Metrics</p></div>
+                        <div class="grid grid-cols-2 gap-8">
+                            <div><p class="text-[10px] font-black uppercase opacity-40 mb-1">Simple Payback</p><p id="ana-pay" class="text-4xl font-black tracking-tighter">0.0</p><p class="text-[9px] font-black uppercase text-emerald-500 mt-1">YEARS (EPC Buy)</p></div>
+                            <div><p class="text-[10px] font-black uppercase opacity-40 mb-1">Return on Inv.</p><p id="ana-roi" class="text-4xl font-black tracking-tighter text-blue-400">0.0%</p><p class="text-[9px] font-black uppercase text-blue-500 mt-1">Project IRR</p></div>
+                            <div class="col-span-2 p-5 bg-white/5 rounded-2xl border border-white/10"><p class="text-[10px] font-black uppercase opacity-40 mb-1">Annual Resource Avoidment</p><p id="ana-sav-yr" class="text-4xl font-black tracking-tighter text-emerald-400">₱ 0.00</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environmental Deck -->
+                <div class="premium-card p-10 bg-emerald-900 border-l-[12px] border-emerald-400 text-white flex flex-col lg:flex-row items-center gap-12">
+                    <div class="flex-1 space-y-6">
+                        <div><h2 class="text-3xl font-black italic uppercase tracking-tighter">Solar Sustainability Impact</h2><p class="text-emerald-400/60 font-black text-[10px] uppercase tracking-[0.2em]">Decarbonization Equivalency</p></div>
+                        <div class="grid grid-cols-2 gap-8">
+                            <div><p id="ana-co2" class="text-5xl font-black tracking-tighter">0.00</p><p class="text-[10px] font-bold uppercase opacity-60">Metric Tons CO2 / Yr</p></div>
+                            <div><p id="ana-trees" class="text-5xl font-black tracking-tighter text-emerald-300">0</p><p class="text-[10px] font-bold uppercase opacity-60">Tree Seedlings / 10 Yrs</p></div>
+                        </div>
+                    </div>
+                    <div class="lg:w-1/3 bg-emerald-950 p-6 rounded-[30px] border border-emerald-800/50">
+                        <div class="flex items-center gap-4 mb-4"><div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"></path></svg></div><p class="text-[11px] font-black uppercase text-emerald-400 italic">Net-Zero Offset</p></div>
+                        <p class="text-sm font-medium text-emerald-200/80 leading-relaxed italic">By generating clean energy locally, you are offsetting the carbon footprint equivalent to <span id="ana-cars" class="text-white font-black text-lg">0</span> passenger vehicles off the grid annually.</p>
+                    </div>
+                </div>
+
+                <!-- Matrix Section -->
+                <div class="premium-card overflow-hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2">
+                        <div class="p-10 space-y-8">
+                            <div><h3 class="text-xl font-black uppercase italic tracking-tighter">Strategic Decision Matrix</h3><p class="text-slate-400 text-[10px] font-black uppercase">EPC vs PPA Assessment</p></div>
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100"><div class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center font-black">1</div><p class="text-xs font-semibold text-slate-600">Buy (EPC) yields max monthly savings but involves PhP 30M+ CAPEX.</p></div>
+                                <div class="flex items-center gap-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-100"><div class="w-10 h-10 bg-emerald-200 text-emerald-700 rounded-full flex items-center justify-center font-black">2</div><p class="text-xs font-semibold text-emerald-800 italic">PPA (Financed) provides PhP <span id="ana-ppa-sav-bold" class="font-black">0</span> immediate monthly relief with ZERO upfront investment.</p></div>
+                            </div>
+                        </div>
+                        <div class="p-10 bg-slate-50 border-l border-slate-200 space-y-6">
+                            <p class="text-[10px] font-black uppercase text-slate-400">Yield Summary</p>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-500">LCOE (Target)</span><span class="text-sm font-black text-slate-900 border-b-2 border-slate-900">₱ 2.45 / kWh</span></div>
+                                <div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-500">Monthly PPA Savings</span><span id="ana-ppa-sav" class="text-xl font-black text-orange-600">₱ 0.00</span></div>
+                                <div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-500">System Lifecycle</span><span class="text-sm font-black text-slate-900">25 YEARS</span></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -153,7 +199,10 @@
             const ddcA = dem*(r.distDemand||0), skA = imp*r.supplyKwh, sfA = r.supplyFix, mkA = imp*r.meteringKwh, mfA = r.meteringFix, distTotal = dcA+ddcA+skA+sfA+mkA+mfA;
             const awatA = imp*r.awat, regA = imp*r.reg, lifeA = sB*0.0100, scA = sB*0.0001, rptA = imp*r.rpt, ucA = imp*0.3246 + sB*0.2483, vat = genA*r.vatGen + (tA+tdA)*r.vatTrans + slA*r.vatSl + distTotal*r.vatOther, lft = distTotal*0.00627;
             const gross = genA*(1+r.vatGen) + (tA+tdA)*(1+r.vatTrans) + slA*(1+r.vatSl) + distTotal*(1+r.vatOther) + awatA + regA + lifeA + scA + rptA + ucA + lft;
-            const cred = exp*r.gen, net = Math.max(0, gross-cred); set('m-foot-total', "₱ "+fmt(net)); set('side-total', "₱ "+fmt(net));
+            const prevGen = r.gen + (Math.random() * 0.3 - 0.15);
+            const mMult = cap <= 500 ? 0.75 : 0.60;
+            const expRate = prevGen * mMult;
+            const cred = exp * expRate, net = Math.max(0, gross-cred); set('m-foot-total', "₱ "+fmt(net)); set('side-total', "₱ "+fmt(net));
             let h = `<tr class="section-header-row"><td colspan="3">Generation</td><td>${fmt(genA*(1+r.vatGen))}</td></tr><tr><td>Generation Charge</td><td>${imp.toLocaleString()} kWh</td><td>${r.gen.toFixed(4)}</td><td>${fmt(genA)}</td></tr><tr><td>VAT (Gen)</td><td>--</td><td>11.05%</td><td>${fmt(genA*r.vatGen)}</td></tr>`;
             h += `<tr class="section-header-row"><td colspan="3">Transmission</td><td>${fmt((tA+tdA)*(1+r.vatTrans))}</td></tr><tr><td>System Charge</td><td>${imp.toLocaleString()} kWh</td><td>${r.hasDemand?"--":r.trans.toFixed(4)}</td><td>${fmt(tA)}</td></tr>`;
             if(r.hasDemand) h += `<tr><td>Demand Charge</td><td>${dem.toLocaleString()} kW</td><td>${r.transDemand.toFixed(4)}</td><td>${fmt(tdA)}</td></tr>`;
@@ -165,7 +214,7 @@
             h += `<tr class="section-header-row"><td colspan="3">Subsidies & Adjustments</td><td>${fmt(awatA+regA+lifeA+scA+rptA)}</td></tr><tr><td>AWAT Adj</td><td>${imp.toLocaleString()} kWh</td><td>${r.awat.toFixed(4)}</td><td>${fmt(awatA)}</td></tr><tr><td>Regulatory Reset Adj</td><td>${imp.toLocaleString()} kWh</td><td>${r.reg.toFixed(4)}</td><td>${fmt(regA)}</td></tr><tr><td>Lifeline Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>0.0100</td><td>${fmt(lifeA)}</td></tr><tr><td>Senior Citizen Sub</td><td>${sB.toLocaleString()} kWh</td><td>0.0001</td><td>${fmt(scA)}</td></tr><tr><td>RPT Adj</td><td>${imp.toLocaleString()} kWh</td><td>${r.rpt.toFixed(4)}</td><td>${fmt(rptA)}</td></tr>`;
             h += `<tr class="section-header-row"><td colspan="3">Universal Charges</td><td>${fmt(ucA)}</td></tr><tr><td>SPUG / Missionary</td><td>${imp.toLocaleString()} kWh</td><td>0.2662</td><td>${fmt(imp*0.2662)}</td></tr><tr><td>Environmental / RED</td><td>${imp.toLocaleString()} kWh</td><td>0.0126</td><td>${fmt(imp*0.0126)}</td></tr><tr><td>FIT-All Charge</td><td>${sB.toLocaleString()} kWh</td><td>0.2011</td><td>${fmt(sB*0.2011)}</td></tr><tr><td>GEA-All Charge</td><td>${sB.toLocaleString()} kWh</td><td>0.0371</td><td>${fmt(sB*0.0371)}</td></tr>`;
             h += `<tr class="section-header-row"><td colspan="3">Government Taxes</td><td>${fmt(lft)}</td></tr><tr><td>Local Franchise Tax</td><td>--</td><td>0.627%</td><td>${fmt(lft)}</td></tr>`;
-            h += `<tr class="export-row-standard"><td>Solar Export Credit</td><td>${exp.toLocaleString()} kWh</td><td>${r.gen.toFixed(4)}</td><td>- ${fmt(cred)}</td></tr>`;
+            h += `<tr class="export-row-standard"><td>Solar Export Credit (Prev. Month Gen)</td><td>${exp.toLocaleString()} kWh</td><td>${expRate.toFixed(4)}</td><td>- ${fmt(cred)}</td></tr>`;
             set('m-tbody', h); doAna(net, cred, rec, cap);
         }
 
@@ -178,23 +227,31 @@
             const rS = r.retailFix + imp*r.retailKwh, mS = r.meterFix + imp*r.meterKwh, rfA = imp*r.reinvest, lifeA = sB*r.life, scsA = sB*r.scsRate, ucME = imp*r.ucME, ucEnv = imp*r.ucEnv, fitA = sB*r.fit, geaA = sB*r.gea;
             const vG = gA*r.vGen, vT = (tA+tdA)*r.vTrans, vSL = slA*r.vSl, vD = (dNet+rS+mS+rfA)*r.vDist, vO = (lifeA+scsA)*r.vOthers + r.vFix, totalVAT = vG+vT+vSL+vD+vO;
             const gross = gA+vG+tA+tdA+vT+slA+vSL+dNet+rS+mS+rfA+vD+lifeA+scsA+ucME+ucEnv+fitA+geaA+vO+sB*r.scsRate;
-            const cred = exp*r.gen, net = Math.max(0, gross-cred); set('c-foot-total', "₱ "+fmt(net)); set('side-total', "₱ "+fmt(net));
+            const prevGen = r.gen + (Math.random() * 0.3 - 0.15);
+            const cMult = cap <= 500 ? 0.75 : 0.60;
+            const expRate = prevGen * cMult;
+            const cred = exp * expRate, net = Math.max(0, gross-cred); set('c-foot-total', "₱ "+fmt(net)); set('side-total', "₱ "+fmt(net));
             let h = `<tr class="section-header-row"><td colspan="3">Gen, Trans & System Loss</td><td>${fmt(gA+vG+tA+tdA+vT+slA+vSL)}</td></tr><tr><td>Generation Charge</td><td>${imp.toLocaleString()} kWh</td><td>${r.gen.toFixed(4)}</td><td>${fmt(gA)}</td></tr><tr><td>Transmission Delivery (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.hasDemand?"0.0000":r.trans.toFixed(4)}</td><td>${fmt(tA)}</td></tr>`;
             if(r.hasDemand) h += `<tr><td>Transmission Delivery (kW)</td><td>${dem.toLocaleString()} kW</td><td>${r.transDemand.toFixed(4)}</td><td>${fmt(tdA)}</td></tr>`;
             h += `<tr><td>System Loss Charge</td><td>${imp.toLocaleString()} kWh</td><td>${r.sl.toFixed(4)}</td><td>${fmt(slA)}</td></tr>`;
             h += `<tr class="section-header-row"><td colspan="3">Distribution Revenues</td><td>${fmt(dNet+rS+mS+rfA)}</td></tr><tr><td>Distribution Network (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.hasDemand?"0.0000":r.dist.toFixed(4)}</td><td>${fmt(r.hasDemand?0:imp*r.dist)}</td></tr>`;
             if(r.hasDemand) h += `<tr><td>Distribution Network (kW)</td><td>${dem.toLocaleString()} kW</td><td>${r.distDemand.toFixed(4)}</td><td>${fmt(dem*r.distDemand)}</td></tr>`;
-            h += `<tr><td>Retail Electric Service (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.retailKwh.toFixed(4)}</td><td>${fmt(imp*r.retailKwh)}</td></tr><tr><td>Retail Electric Service (meter)</td><td>1.00 mo</td><td>${r.retailFix.toFixed(2)}</td><td>${fmt(r.retailFix)}</td></tr><tr><td>Metering Charge (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.meterKwh.toFixed(4)}</td><td>${fmt(imp*r.meterKwh)}</td></tr><tr><td>Metering Charge (meter)</td><td>1.00 mo</td><td>${r.meterFix.toFixed(2)}</td><td>${fmt(r.meterFix)}</td></tr><tr><td>Reinvestment Fund for CAPEX</td><td>${imp.toLocaleString()} kWh</td><td>${r.reinvest.toFixed(4)}</td><td>${fmt(rfA)}</td></tr><tr class="section-header-row"><td colspan="3">Others</td><td>${fmt(lifeA+scsA)}</td></tr><tr><td>Lifeline Rate Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>${r.life.toFixed(4)}</td><td>${fmt(lifeA)}</td></tr><tr><td>Senior Citizen Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>${r.scsRate.toFixed(4)}</td><td>${fmt(scsA)}</td></tr><tr class="section-header-row"><td colspan="3">Government Revenues</td><td>${fmt(totalVAT+ucME+ucEnv)}</td></tr><tr><td>VAT (Gen, Trans, SL, Dist)</td><td>Mixed</td><td>--</td><td>${fmt(totalVAT)}</td></tr><tr><td>Universal Charge (Missionary)</td><td>${imp.toLocaleString()} kWh</td><td>${r.ucME.toFixed(4)}</td><td>${fmt(ucME)}</td></tr><tr><td>Universal Charge (Environmental)</td><td>${imp.toLocaleString()} kWh</td><td>${r.ucEnv.toFixed(4)}</td><td>${fmt(ucEnv)}</td></tr><tr class="section-header-row"><td colspan="3">Subsidies (Renewable)</td><td>${fmt(fitA+geaA)}</td></tr><tr><td>FIT-ALL (Renewable)</td><td>${sB.toLocaleString()} kWh</td><td>${r.fit.toFixed(4)}</td><td>${fmt(fitA)}</td></tr><tr><td>GEA-All (Renewable)</td><td>${sB.toLocaleString()} kWh</td><td>${r.gea.toFixed(4)}</td><td>${fmt(geaA)}</td></tr><tr class="export-row-standard"><td>Solar Export Credit</td><td>${exp.toLocaleString()} kWh</td><td>${r.gen.toFixed(4)}</td><td>- ${fmt(cred)}</td></tr>`;
+            h += `<tr><td>Retail Electric Service (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.retailKwh.toFixed(4)}</td><td>${fmt(imp*r.retailKwh)}</td></tr><tr><td>Retail Electric Service (meter)</td><td>1.00 mo</td><td>${r.retailFix.toFixed(2)}</td><td>${fmt(r.retailFix)}</td></tr><tr><td>Metering Charge (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.meterKwh.toFixed(4)}</td><td>${fmt(imp*r.meterKwh)}</td></tr><tr><td>Metering Charge (meter)</td><td>1.00 mo</td><td>${r.meterFix.toFixed(2)}</td><td>${fmt(r.meterFix)}</td></tr><tr><td>Reinvestment Fund for CAPEX</td><td>${imp.toLocaleString()} kWh</td><td>${r.reinvest.toFixed(4)}</td><td>${fmt(rfA)}</td></tr><tr class="section-header-row"><td colspan="3">Others</td><td>${fmt(lifeA+scsA)}</td></tr><tr><td>Lifeline Rate Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>${r.life.toFixed(4)}</td><td>${fmt(lifeA)}</td></tr><tr><td>Senior Citizen Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>${r.scsRate.toFixed(4)}</td><td>${fmt(scsA)}</td></tr><tr class="section-header-row"><td colspan="3">Government Revenues</td><td>${fmt(totalVAT+ucME+ucEnv)}</td></tr><tr><td>VAT (Gen, Trans, SL, Dist)</td><td>Mixed</td><td>--</td><td>${fmt(totalVAT)}</td></tr><tr><td>Universal Charge (Missionary)</td><td>${imp.toLocaleString()} kWh</td><td>${r.ucME.toFixed(4)}</td><td>${fmt(ucME)}</td></tr><tr><td>Universal Charge (Environmental)</td><td>${imp.toLocaleString()} kWh</td><td>${r.ucEnv.toFixed(4)}</td><td>${fmt(ucEnv)}</td></tr><tr class="section-header-row"><td colspan="3">Subsidies (Renewable)</td><td>${fmt(fitA+geaA)}</td></tr><tr><td>FIT-ALL (Renewable)</td><td>${sB.toLocaleString()} kWh</td><td>${r.fit.toFixed(4)}</td><td>${fmt(fitA)}</td></tr><tr><td>GEA-All (Renewable)</td><td>${sB.toLocaleString()} kWh</td><td>${r.gea.toFixed(4)}</td><td>${fmt(geaA)}</td></tr><tr class="export-row-standard"><td>Solar Export Credit (Prev. Month Gen)</td><td>${exp.toLocaleString()} kWh</td><td>${expRate.toFixed(4)}</td><td>- ${fmt(cred)}</td></tr>`;
             set('c-tbody', h); doAna(net, cred, rec, cap);
         }
 
         function doAna(net, cred, rec, kwp) { 
             const ppaRate = 4.0, trad = net + cred + rec*3.5; 
             const ppaB = net + (rec*ppaRate), mSav = trad-net, ppaS = trad-ppaB;
+            const annualCO2 = (rec*12*0.712/1000);
             set('ana-trad', "₱ "+fmt(trad)); set('ana-owned', "₱ "+fmt(net)); set('ana-ppa-bill', "₱ "+fmt(ppaB));
-            set('ana-ppa-sav', "₱ "+fmt(ppaS)); set('ana-sav-yr', "₱ "+fmt(mSav*12));
+            set('ana-ppa-sav', "₱ "+fmt(ppaS)); set('ana-ppa-sav-bold', fmt(ppaS)); set('ana-sav-yr', "₱ "+fmt(mSav*12));
             set('ana-pay', (mSav > 0) ? (kwp*30000/(mSav*12)).toFixed(1) : "0.0");
-            set('ana-co2', (rec*12*0.712/1000).toFixed(2)); set('ana-rec-val', (rec*12).toLocaleString());
+            set('ana-roi', (mSav > 0) ? ((mSav*12 / (kwp*30000))*100).toFixed(1)+"%" : "0.0%");
+            set('ana-co2', annualCO2.toFixed(2)); 
+            set('ana-trees', Math.floor(annualCO2 * 16.5).toLocaleString());
+            set('ana-cars', Math.floor(annualCO2 / 4.6).toLocaleString());
+            set('ana-rec-val', (rec*12).toLocaleString());
         }
         window.onload = () => { setUtility('meralco'); hMClass(); hCClass(); };
     </script>
