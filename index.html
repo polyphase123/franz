@@ -63,6 +63,7 @@
                         <div class="input-group"><label>RE Generated (kWh)</label><input type="number" id="m-rec-in" value="58320" oninput="vRec('m'); calculate();"><p class="text-[9px] font-bold text-slate-400 mt-1 uppercase">Max Estimated: <span id="m-rec-max">58,320</span> kWh</p></div>
                         <div class="input-group"><label>Grid Import (kWh)</label><input type="number" id="m-imp" value="97800" oninput="calculate()"></div>
                         <div class="input-group"><label>Solar Export (kWh)</label><input type="number" id="m-exp" value="5000" oninput="vExp('m'); calculate();"><p id="m-exp-err" class="hidden text-[9px] font-bold text-red-500 mt-1 uppercase">Exceeds Production</p></div>
+                        <div class="input-group"><label>Export Price (₱/kWh)</label><input type="number" id="m-exp-price" value="6.2898" step="0.0001" oninput="calculate()"></div>
                     </div>
                     <div id="c-params" class="hidden space-y-4">
                         <div class="input-group"><label>Customer Class</label><select id="c-class" onchange="hCClass()"><option value="residential" selected>Residential</option><option value="low-voltage">Low Voltage</option><option value="higher-voltage">High Voltage</option></select></div>
@@ -71,7 +72,9 @@
                         <div class="input-group"><label>RE Generated (kWh)</label><input type="number" id="c-rec-in" value="15552" oninput="vRec('c'); calculate();"><p class="text-[9px] font-bold text-slate-400 mt-1 uppercase">Max Estimated: <span id="c-rec-max">15,552</span> kWh</p></div>
                         <div class="input-group"><label>Grid Import (kWh)</label><input type="number" id="c-imp" value="35000" oninput="calculate()"></div>
                         <div class="input-group"><label>Solar Export (kWh)</label><input type="number" id="c-exp" value="731" oninput="vExp('c'); calculate();"><p id="c-exp-err" class="hidden text-[9px] font-bold text-red-500 mt-1 uppercase">Exceeds Production</p></div>
+                        <div class="input-group"><label>Export Price (₱/kWh)</label><input type="number" id="c-exp-price" value="3.9130" step="0.0001" oninput="calculate()"></div>
                     </div>
+                    <button onclick="resetAll()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all border border-slate-200 mt-4">Reset Profile</button>
                 </div>
                 <div class="premium-card p-6 bg-slate-900 text-white space-y-2">
                     <p class="text-[9px] font-black uppercase opacity-40">Monthly Net Payable</p>
@@ -185,6 +188,28 @@
         function vExp(u) { const rec = parseFloat(document.getElementById(u+'-rec-in').value)||0; const expEl = document.getElementById(u+'-exp'); const err = document.getElementById(u+'-exp-err'); if (parseFloat(expEl.value) > rec) { expEl.value = rec; err.classList.remove('hidden'); } else err.classList.add('hidden'); }
         function updateRE(u) { const kw = parseFloat(document.getElementById(u+'-cap').value)||0; const max = Math.floor(kw * 24 * 30 * 0.18); document.getElementById(u+'-rec-max').innerText = max.toLocaleString(); document.getElementById(u+'-rec-in').value = max; calculate(); }
         
+        function resetAll() {
+            // Meralco Defaults
+            document.getElementById('m-class').value = 'gp-secondary';
+            document.getElementById('m-dem').value = 405;
+            document.getElementById('m-cap').value = 450;
+            document.getElementById('m-rec-in').value = 58320;
+            document.getElementById('m-imp').value = 97800;
+            document.getElementById('m-exp').value = 5000;
+            document.getElementById('m-exp-price').value = 6.2898;
+            // Batelec Defaults
+            document.getElementById('c-class').value = 'residential';
+            document.getElementById('c-dem').value = 40;
+            document.getElementById('c-cap').value = 120;
+            document.getElementById('c-rec-in').value = 15552;
+            document.getElementById('c-imp').value = 35000;
+            document.getElementById('c-exp').value = 731;
+            document.getElementById('c-exp-price').value = 3.9130;
+            
+            hMClass(); hCClass(); // Ensure dbox Visibility
+            calculate();
+        }
+        
         function setUtility(u) { currU = u; const p = document.getElementById('util-pill'); if(u==='meralco'){p.style.left='0.375rem';} else{p.style.left='calc(50% + 1px)';} document.getElementById('btn-meralco').classList.toggle('active',u==='meralco'); document.getElementById('btn-coop').classList.toggle('active',u==='coop'); document.getElementById('m-params').classList.toggle('hidden',u!=='meralco'); document.getElementById('c-params').classList.toggle('hidden',u!=='coop'); document.getElementById('m-bill').classList.toggle('hidden',u!=='meralco'); document.getElementById('c-bill').classList.toggle('hidden',u!=='coop'); calculate(); }
         function switchMode(m) { document.getElementById('v-bill').classList.toggle('hidden', m!=='bill'); document.getElementById('v-analytics').classList.toggle('hidden', m!=='analytics'); document.getElementById('mode-bill').className = m==='bill'?'tab-btn active':'tab-btn'; document.getElementById('mode-analytics').className = m==='analytics'?'tab-btn active':'tab-btn'; calculate(); }
         function calculate() { if(currU==='meralco') calcM(); else calcC(); }
@@ -199,9 +224,7 @@
             const ddcA = dem*(r.distDemand||0), skA = imp*r.supplyKwh, sfA = r.supplyFix, mkA = imp*r.meteringKwh, mfA = r.meteringFix, distTotal = dcA+ddcA+skA+sfA+mkA+mfA;
             const awatA = imp*r.awat, regA = imp*r.reg, lifeA = sB*0.0100, scA = sB*0.0001, rptA = imp*r.rpt, ucA = imp*0.3246 + sB*0.2483, vat = genA*r.vatGen + (tA+tdA)*r.vatTrans + slA*r.vatSl + distTotal*r.vatOther, lft = distTotal*0.00627;
             const gross = genA*(1+r.vatGen) + (tA+tdA)*(1+r.vatTrans) + slA*(1+r.vatSl) + distTotal*(1+r.vatOther) + awatA + regA + lifeA + scA + rptA + ucA + lft;
-            const prevGen = r.gen + (Math.random() * 0.3 - 0.15);
-            const mMult = cap <= 500 ? 0.75 : 0.60;
-            const expRate = prevGen * mMult;
+            const expRate = parseFloat(document.getElementById('m-exp-price').value)||0;
             const cred = exp * expRate, net = Math.max(0, gross-cred); set('m-foot-total', "₱ "+fmt(net)); set('side-total', "₱ "+fmt(net));
             let h = `<tr class="section-header-row"><td colspan="3">Generation</td><td>${fmt(genA*(1+r.vatGen))}</td></tr><tr><td>Generation Charge</td><td>${imp.toLocaleString()} kWh</td><td>${r.gen.toFixed(4)}</td><td>${fmt(genA)}</td></tr><tr><td>VAT (Gen)</td><td>--</td><td>11.05%</td><td>${fmt(genA*r.vatGen)}</td></tr>`;
             h += `<tr class="section-header-row"><td colspan="3">Transmission</td><td>${fmt((tA+tdA)*(1+r.vatTrans))}</td></tr><tr><td>System Charge</td><td>${imp.toLocaleString()} kWh</td><td>${r.hasDemand?"--":r.trans.toFixed(4)}</td><td>${fmt(tA)}</td></tr>`;
@@ -227,9 +250,7 @@
             const rS = r.retailFix + imp*r.retailKwh, mS = r.meterFix + imp*r.meterKwh, rfA = imp*r.reinvest, lifeA = sB*r.life, scsA = sB*r.scsRate, ucME = imp*r.ucME, ucEnv = imp*r.ucEnv, fitA = sB*r.fit, geaA = sB*r.gea;
             const vG = gA*r.vGen, vT = (tA+tdA)*r.vTrans, vSL = slA*r.vSl, vD = (dNet+rS+mS+rfA)*r.vDist, vO = (lifeA+scsA)*r.vOthers + r.vFix, totalVAT = vG+vT+vSL+vD+vO;
             const gross = gA+vG+tA+tdA+vT+slA+vSL+dNet+rS+mS+rfA+vD+lifeA+scsA+ucME+ucEnv+fitA+geaA+vO+sB*r.scsRate;
-            const prevGen = r.gen + (Math.random() * 0.3 - 0.15);
-            const cMult = cap <= 500 ? 0.75 : 0.60;
-            const expRate = prevGen * cMult;
+            const expRate = parseFloat(document.getElementById('c-exp-price').value)||0;
             const cred = exp * expRate, net = Math.max(0, gross-cred); set('c-foot-total', "₱ "+fmt(net)); set('side-total', "₱ "+fmt(net));
             let h = `<tr class="section-header-row"><td colspan="3">Gen, Trans & System Loss</td><td>${fmt(gA+vG+tA+tdA+vT+slA+vSL)}</td></tr><tr><td>Generation Charge</td><td>${imp.toLocaleString()} kWh</td><td>${r.gen.toFixed(4)}</td><td>${fmt(gA)}</td></tr><tr><td>Transmission Delivery (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.hasDemand?"0.0000":r.trans.toFixed(4)}</td><td>${fmt(tA)}</td></tr>`;
             if(r.hasDemand) h += `<tr><td>Transmission Delivery (kW)</td><td>${dem.toLocaleString()} kW</td><td>${r.transDemand.toFixed(4)}</td><td>${fmt(tdA)}</td></tr>`;
