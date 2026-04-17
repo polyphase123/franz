@@ -58,24 +58,44 @@
                     <h2 class="text-[10px] font-black text-slate-900 uppercase tracking-widest border-b pb-3">Simulation Profile</h2>
                     <div id="m-params" class="space-y-4">
                         <div class="input-group"><label>Customer Class</label><select id="m-class" onchange="hMClass()"><option value="residential">Residential</option><option value="gs-a">General Service A</option><option value="gs-b">General Service B</option><option value="gp-secondary" selected>GP Secondary</option><option value="gp-13kv">GP 13.8 KV</option><option value="gp-34kv">GP 34.5 KV</option></select></div>
-                        <div class="input-group hidden" id="m-dbox"><label>Billed Demand (kW)</label><input type="number" id="m-dem" value="405" oninput="calculate()"></div>
+                        <div class="input-group hidden" id="m-dbox">
+                            <label>Billed Demand (kW)</label>
+                            <input type="number" id="m-dem" value="405" oninput="calculate()">
+                            <div class="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <label class="text-[9px] text-slate-400">GMBD Floor (kW)</label>
+                                <input type="number" id="m-gmbd" value="40" oninput="calculate()" class="!bg-transparent !border-none !p-0 !text-sm !h-auto focus:!ring-0">
+                            </div>
+                        </div>
                         <div class="input-group"><label>Solar Capacity (kWp)</label><input type="number" id="m-cap" value="450" oninput="vCap('m-cap'); calculate(); updateRE('m')"></div>
+                        <div class="input-group"><label>Gen Charge (₱/kWh)</label><input type="number" id="m-gen-price" value="8.3864" step="0.0001" oninput="syncGen('m', this.value)" onfocus="this.select()"></div>
                         <div class="input-group"><label>RE Generated (kWh)</label><input type="number" id="m-rec-in" value="58320" oninput="vRec('m'); calculate();"><p class="text-[9px] font-bold text-slate-400 mt-1 uppercase">Max Estimated: <span id="m-rec-max">58,320</span> kWh</p></div>
                         <div class="input-group"><label>Grid Import (kWh)</label><input type="number" id="m-imp" value="97800" oninput="calculate()"></div>
-                        <div class="input-group"><label>Solar Export (kWh)</label><input type="number" id="m-exp" value="5000" oninput="vExp('m'); calculate();"><p id="m-exp-err" class="hidden text-[9px] font-bold text-red-500 mt-1 uppercase">Exceeds Production</p></div>
-                        <div class="input-group"><label>Export Price (₱/kWh)</label><input type="number" id="m-exp-price" value="6.2898" step="0.0001" oninput="calculate()"></div>
+                        <div class="input-group"><label>Solar Export (kWh)</label><input type="number" id="m-exp" value="17496" oninput="vExp('m'); calculate();" onfocus="this.select()"><p id="m-exp-err" class="hidden text-[9px] font-bold text-red-500 mt-1 uppercase">Exceeds 30% DER Cap</p><p class="text-[9px] font-black text-amber-600 mt-1 uppercase italic tracking-tighter">Regulatory Note: Only 30% of theoretical energy can be paid.</p></div>
+                        <input type="hidden" id="m-exp-price" value="6.2898">
                     </div>
                     <div id="c-params" class="hidden space-y-4">
                         <div class="input-group"><label>Customer Class</label><select id="c-class" onchange="hCClass()"><option value="residential" selected>Residential</option><option value="low-voltage">Low Voltage</option><option value="higher-voltage">High Voltage</option></select></div>
                         <div class="input-group hidden" id="c-dbox"><label>Billed Demand (kW)</label><input type="number" id="c-dem" value="40" oninput="calculate()"></div>
                         <div class="input-group"><label>Solar Capacity (kWp)</label><input type="number" id="c-cap" value="120" oninput="vCap('c-cap'); calculate(); updateRE('c')"></div>
+                        <input type="hidden" id="c-gen-price" value="5.2173">
                         <div class="input-group"><label>RE Generated (kWh)</label><input type="number" id="c-rec-in" value="15552" oninput="vRec('c'); calculate();"><p class="text-[9px] font-bold text-slate-400 mt-1 uppercase">Max Estimated: <span id="c-rec-max">15,552</span> kWh</p></div>
                         <div class="input-group"><label>Grid Import (kWh)</label><input type="number" id="c-imp" value="35000" oninput="calculate()"></div>
-                        <div class="input-group"><label>Solar Export (kWh)</label><input type="number" id="c-exp" value="731" oninput="vExp('c'); calculate();"><p id="c-exp-err" class="hidden text-[9px] font-bold text-red-500 mt-1 uppercase">Exceeds Production</p></div>
-                        <div class="input-group"><label>Export Price (₱/kWh)</label><input type="number" id="c-exp-price" value="3.9130" step="0.0001" oninput="calculate()"></div>
+                        <div class="input-group"><label>Solar Export (kWh)</label><input type="number" id="c-exp" value="4665" oninput="vExp('c'); calculate();" onfocus="this.select()"><p id="c-exp-err" class="hidden text-[9px] font-bold text-red-500 mt-1 uppercase">Exceeds 30% DER Cap</p><p class="text-[9px] font-black text-amber-600 mt-1 uppercase italic tracking-tighter">Regulatory Note: Only 30% of theoretical energy can be paid.</p></div>
+                        <input type="hidden" id="c-exp-price" value="3.9130">
                     </div>
                     <button onclick="resetAll()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all border border-slate-200 mt-4">Reset Profile</button>
                 </div>
+
+                <!-- Financial Benchmarks -->
+                <div class="premium-card p-6 space-y-6">
+                    <h2 class="text-[10px] font-black text-slate-900 uppercase tracking-widest border-b pb-3">Financial Benchmarks</h2>
+                    <div class="space-y-4">
+                        <div class="input-group"><label>Avoided Grid Rate (₱/kWh)</label><input type="number" id="f-grid" value="12.50" step="0.1" oninput="calculate()"></div>
+                        <div class="input-group"><label>PPA Tariff (₱/kWh)</label><input type="number" id="f-ppa" value="4.50" step="0.1" oninput="calculate()"></div>
+                        <div class="input-group"><label>EPC CAPEX (₱/kWp)</label><input type="number" id="f-capex" value="35000" step="1000" oninput="calculate()"></div>
+                    </div>
+                </div>
+
                 <div class="premium-card p-6 bg-slate-900 text-white space-y-2">
                     <p class="text-[9px] font-black uppercase opacity-40">Monthly Net Payable</p>
                     <h2 class="text-4xl font-black tracking-tighter" id="side-total">₱ 0.00</h2>
@@ -91,7 +111,7 @@
                 </div>
 
                 <div id="m-bill" class="premium-card overflow-hidden border-t-4 border-orange-500">
-                    <div class="p-8 bg-orange-50/20 flex justify-between items-end border-b"><div><h3 class="text-xl font-black text-slate-900 italic uppercase">Detailed Assessment</h3><p class="text-xs font-bold text-slate-400 uppercase">Meralco Consolidated Schedule</p></div><h2 class="text-4xl font-black tracking-tighter" id="m-foot-total">₱ 0.00</h2></div>
+                    <div class="p-8 bg-orange-50/20 flex justify-between items-end border-b"><div><h3 class="text-xl font-black text-slate-900 italic uppercase">Detailed Assessment</h3><p class="text-xs font-bold text-slate-400 uppercase">Meralco DER Grid Participation</p></div><h2 class="text-4xl font-black tracking-tighter" id="m-foot-total">₱ 0.00</h2></div>
                     <div class="p-4 overflow-x-auto"><table class="meralco-table w-full"><thead><tr><th class="text-left">RATE COMPONENT</th><th>BASE</th><th>PRICE</th><th>AMOUNT</th></tr></thead><tbody id="m-tbody"></tbody></table></div>
                 </div>
 
@@ -110,7 +130,13 @@
                         <div class="space-y-3">
                             <div class="p-5 bg-slate-50 rounded-2xl border flex justify-between items-center"><div><p class="text-[10px] font-black text-slate-400 uppercase">Traditional Grid</p><p id="ana-trad" class="text-xl font-black">₱ 0.00</p></div><span class="bg-slate-200 px-2 py-0.5 rounded-md text-[9px] font-black text-slate-500">REF</span></div>
                             <div class="p-5 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex justify-between items-center"><div><p class="text-[10px] font-black text-emerald-600 uppercase">Ownership (EPC)</p><p id="ana-owned" class="text-xl font-black text-emerald-700">₱ 0.00</p></div><span class="bg-emerald-600 px-2 py-0.5 rounded-md text-[9px] font-black text-white">BEST</span></div>
-                            <div class="p-5 bg-orange-50 rounded-2xl border flex justify-between items-center"><div><p class="text-[10px] font-black text-orange-600 uppercase">Financing (PPA)</p><p id="ana-ppa-bill" class="text-xl font-black text-orange-700">₱ 0.00</p></div><span class="bg-orange-200 px-2 py-0.5 rounded-md text-[9px] font-black text-orange-700">FIN</span></div>
+                            <div class="p-5 bg-orange-50 rounded-2xl border flex flex-col gap-3">
+                                <div class="flex justify-between items-center"><div><p class="text-[10px] font-black text-orange-600 uppercase">Financing (PPA)</p><p id="ana-ppa-bill" class="text-xl font-black text-orange-700">₱ 0.00</p></div><span class="bg-orange-200 px-2 py-0.5 rounded-md text-[9px] font-black text-orange-700">FIN</span></div>
+                                <div class="pt-2 border-t border-orange-200 flex justify-between text-[10px] uppercase font-bold text-orange-800">
+                                    <span>To Utility: <span id="ana-ppa-util">₱ 0</span></span>
+                                    <span>To Solar: <span id="ana-ppa-solar">₱ 0</span></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -167,6 +193,7 @@
         const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
         let currU = 'meralco';
+        window.isMan = { mN: false, mG: false, cN: false, cG: false };
         const mRS = { 
             residential: { gen: 8.3864, trans: 1.4567, sl: 0.7752, dist: [{max:200,rate:0.9803},{max:300,rate:1.2908},{max:400,rate:1.5837},{max:Infinity,rate:2.0941}], supplyKwh: 0.4979, supplyFix: 16.38, meteringKwh: 0.3350, meteringFix: 5.0, vatGen: 0.1105, vatTrans: 0.11, vatSl: 0.1104, vatOther: 0.12, hasDemand: false, awat:-0.2024, reg:-0.0023, rpt:0.0059 }, 
             'gs-a': { gen: 8.3864, trans: 1.4567, sl: 0.7752, dist: 0.7313, supplyKwh: 0.4979, supplyFix: 16.38, meteringKwh: 0.3350, meteringFix: 5.0, vatGen: 0.1105, vatTrans: 0.11, vatSl: 0.1104, vatOther: 0.12, hasDemand: false, awat:-0.2024, reg:-0.0023, rpt:0.0059 }, 
@@ -181,33 +208,98 @@
             'higher-voltage': { gen: 5.2173, transDemand: 736.63, sl: 0.6894, distDemand: 118.55, retailFix: 59.73, retailKwh:0, meterKwh:0, meterFix: 54.92, reinvest: 0.3216, life: 0.0100, ucSD: 0.0428, ucME: 0.2763, ucEnv: 0.0025, fit: 0.2011, gea: 0.0371, hasDemand: true, vGen: 0.12, vTrans: 0.12, vSl: 0.12, vDist: 0.12, vOthers: 0.12, vFix: 0, scsRate: 0.0001 } 
         };
 
-        function hMClass() { const cls = document.getElementById('m-class').value; document.getElementById('m-dbox').classList.toggle('hidden', !mRS[cls].hasDemand); calculate(); }
-        function hCClass() { const cls = document.getElementById('c-class').value; document.getElementById('c-dbox').classList.toggle('hidden', !cRS[cls].hasDemand); calculate(); }
-        function vCap(id) { const v = parseFloat(document.getElementById(id).value)||0; if(v<100||v>1000) document.getElementById(id).classList.add('input-error'); else document.getElementById(id).classList.remove('input-error'); }
-        function vRec(u) { const cap = parseFloat(document.getElementById(u+'-cap').value)||0; const max = Math.floor(cap * 24 * 30 * 0.18); const inEl = document.getElementById(u+'-rec-in'); if (parseFloat(inEl.value) > max) { inEl.value = max; inEl.classList.add('border-blue-500'); } else inEl.classList.remove('border-blue-500'); }
-        function vExp(u) { const rec = parseFloat(document.getElementById(u+'-rec-in').value)||0; const expEl = document.getElementById(u+'-exp'); const err = document.getElementById(u+'-exp-err'); if (parseFloat(expEl.value) > rec) { expEl.value = rec; err.classList.remove('hidden'); } else err.classList.add('hidden'); }
-        function updateRE(u) { const kw = parseFloat(document.getElementById(u+'-cap').value)||0; const max = Math.floor(kw * 24 * 30 * 0.18); document.getElementById(u+'-rec-max').innerText = max.toLocaleString(); document.getElementById(u+'-rec-in').value = max; calculate(); }
+        function hMClass() { 
+            const cls = document.getElementById('m-class').value; 
+            document.getElementById('m-dbox').classList.toggle('hidden', !mRS[cls].hasDemand); 
+            if(!window.isMan.mG) document.getElementById('m-gen-price').value = mRS[cls].gen.toFixed(4);
+            // Default GMBD logic
+            if (cls === 'gs-b') document.getElementById('m-gmbd').value = 5;
+            else if (['gp-13kv', 'gp-34kv'].includes(cls)) document.getElementById('m-gmbd').value = 40;
+            updateNM('m'); calculate(); 
+        }
+        function hCClass() { 
+            const cls = document.getElementById('c-class').value; 
+            document.getElementById('c-dbox').classList.toggle('hidden', !cRS[cls].hasDemand); 
+            if(!window.isMan.cG) document.getElementById('c-gen-price').value = cRS[cls].gen.toFixed(4);
+            updateNM('c'); calculate(); 
+        }
+        function vCap(id) { 
+            let v = parseFloat(document.getElementById(id).value)||0; 
+            if(v<=100) document.getElementById(id).classList.add('input-error');
+            else if(v>1000) document.getElementById(id).classList.add('input-error');
+            else document.getElementById(id).classList.remove('input-error');
+            updateNM(id.startsWith('m')?'m':'c');
+        }
+        function vRec(u) { 
+            const cap = parseFloat(document.getElementById(u+'-cap').value)||0; 
+            const max = Math.floor(cap * 24 * 30 * 0.18); 
+            const inEl = document.getElementById(u+'-rec-in'); 
+            if (parseFloat(inEl.value) > max) { inEl.value = max; inEl.classList.add('border-blue-500'); } 
+            else inEl.classList.remove('border-blue-500'); 
+            vExp(u); 
+        }
+        function vExp(u) { 
+            const red = parseFloat(document.getElementById(u+'-rec-in').value)||0; 
+            const cap = parseFloat(document.getElementById(u+'-cap').value)||0;
+            const maxTheo = Math.floor(cap * 24 * 30 * 0.18);
+            const derCapLimit = Math.floor(maxTheo * 0.30); // 30% DER limitation applied globally
+            const expEl = document.getElementById(u+'-exp'); 
+            const err = document.getElementById(u+'-exp-err'); 
+            let val = parseFloat(expEl.value)||0;
+            let over = false;
+            if (val > red) { val = red; over = true; }
+            if (val > derCapLimit) { val = derCapLimit; over = true; }
+            if (over) { expEl.value = val; err.classList.remove('hidden'); }
+            else err.classList.add('hidden');
+        }
+        function updateRE(u) { 
+            const kw = parseFloat(document.getElementById(u+'-cap').value)||100; 
+            const max = Math.floor(kw * 24 * 30 * 0.18); 
+            document.getElementById(u+'-rec-max').innerText = max.toLocaleString(); 
+            document.getElementById(u+'-rec-in').value = max; 
+            // Auto-update hidden export to the 30% cap
+            document.getElementById(u+'-exp').value = Math.floor(max * 0.30);
+            vExp(u); calculate(); 
+        }
+        function updateNM(u) { 
+            if (window.isMan[u==='meralco'?'mN':'cN']) return; 
+            const g = parseFloat(document.getElementById(u+'-gen-price').value)||0; 
+            const cap = parseFloat(document.getElementById(u+'-cap').value)||100; 
+            const mult = cap <= 500 ? 0.75 : 0.60;
+            // Variance within .155
+            const prevGenSim = g + (Math.random() * 0.31 - 0.155);
+            const val = (prevGenSim * mult).toFixed(4);
+            const el = document.getElementById(u==='meralco'?'m-exp-price':'c-exp-price');
+            if(el) el.value = val;
+        }
+        function syncRate(u, v) { window.isMan[u==='meralco'?'mN':'cN'] = true; document.getElementById(u==='meralco'?'m-exp-price':'c-exp-price').value = v; calculate(); }
+        function syncGen(u, v) { window.isMan[u==='meralco'?'mG':'cG'] = true; updateNM(u); calculate(); }
         
         function resetAll() {
-            // Meralco Defaults
+            window.isMan = { mN: false, mG: false, cN: false, cG: false };
+            // Meralco
             document.getElementById('m-class').value = 'gp-secondary';
             document.getElementById('m-dem').value = 405;
-            document.getElementById('m-cap').value = 450;
-            document.getElementById('m-rec-in').value = 58320;
+            document.getElementById('m-cap').value = 100;
+            document.getElementById('m-gen-price').value = 8.3864;
+            document.getElementById('m-rec-in').value = 12960;
             document.getElementById('m-imp').value = 97800;
-            document.getElementById('m-exp').value = 5000;
+            document.getElementById('m-exp').value = 3888;
             document.getElementById('m-exp-price').value = 6.2898;
-            // Batelec Defaults
+            // Batelec
             document.getElementById('c-class').value = 'residential';
             document.getElementById('c-dem').value = 40;
-            document.getElementById('c-cap').value = 120;
-            document.getElementById('c-rec-in').value = 15552;
+            document.getElementById('c-cap').value = 100;
+            document.getElementById('c-gen-price').value = 5.2173;
+            document.getElementById('c-rec-in').value = 12960;
             document.getElementById('c-imp').value = 35000;
-            document.getElementById('c-exp').value = 731;
+            document.getElementById('c-exp').value = 11000;
             document.getElementById('c-exp-price').value = 3.9130;
-            
-            hMClass(); hCClass(); // Ensure dbox Visibility
-            calculate();
+            // Benchmarks
+            document.getElementById('f-grid').value = 12.50;
+            document.getElementById('f-ppa').value = 4.50;
+            document.getElementById('f-capex').value = 35000;
+            hMClass(); hCClass(); calculate();
         }
         
         function setUtility(u) { currU = u; const p = document.getElementById('util-pill'); if(u==='meralco'){p.style.left='0.375rem';} else{p.style.left='calc(50% + 1px)';} document.getElementById('btn-meralco').classList.toggle('active',u==='meralco'); document.getElementById('btn-coop').classList.toggle('active',u==='coop'); document.getElementById('m-params').classList.toggle('hidden',u!=='meralco'); document.getElementById('c-params').classList.toggle('hidden',u!=='coop'); document.getElementById('m-bill').classList.toggle('hidden',u!=='meralco'); document.getElementById('c-bill').classList.toggle('hidden',u!=='coop'); calculate(); }
@@ -215,8 +307,10 @@
         function calculate() { if(currU==='meralco') calcM(); else calcC(); }
 
         function calcM() {
-            const cls = document.getElementById('m-class').value, r = mRS[cls];
-            const imp = parseFloat(document.getElementById('m-imp').value)||0, dem = parseFloat(document.getElementById('m-dem').value)||0, cap = parseFloat(document.getElementById('m-cap').value)||0;
+            const cls = document.getElementById('m-class').value, r = {...mRS[cls], gen: parseFloat(document.getElementById('m-gen-price').value)||mRS[cls].gen};
+            const imp = parseFloat(document.getElementById('m-imp').value)||0, m_dem = parseFloat(document.getElementById('m-dem').value)||0, cap = parseFloat(document.getElementById('m-cap').value)||0;
+            const gmbd = parseFloat(document.getElementById('m-gmbd').value)||0;
+            const dem = Math.max(m_dem, gmbd);
             const exp = parseFloat(document.getElementById('m-exp').value)||0, rec = parseFloat(document.getElementById('m-rec-in').value)||0, sB = imp+rec-exp;
             set('b-imp', imp.toLocaleString()+" kWh"); set('b-exp', "- "+exp.toLocaleString()+" kWh"); set('b-rec', rec.toLocaleString()+" kWh"); set('b-sub', sB.toLocaleString()+" kWh");
             const genA = imp*r.gen, slA = imp*r.sl, tA = r.hasDemand?0:imp*r.trans, tdA = r.hasDemand?dem*r.transDemand:0;
@@ -237,12 +331,12 @@
             h += `<tr class="section-header-row"><td colspan="3">Subsidies & Adjustments</td><td>${fmt(awatA+regA+lifeA+scA+rptA)}</td></tr><tr><td>AWAT Adj</td><td>${imp.toLocaleString()} kWh</td><td>${r.awat.toFixed(4)}</td><td>${fmt(awatA)}</td></tr><tr><td>Regulatory Reset Adj</td><td>${imp.toLocaleString()} kWh</td><td>${r.reg.toFixed(4)}</td><td>${fmt(regA)}</td></tr><tr><td>Lifeline Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>0.0100</td><td>${fmt(lifeA)}</td></tr><tr><td>Senior Citizen Sub</td><td>${sB.toLocaleString()} kWh</td><td>0.0001</td><td>${fmt(scA)}</td></tr><tr><td>RPT Adj</td><td>${imp.toLocaleString()} kWh</td><td>${r.rpt.toFixed(4)}</td><td>${fmt(rptA)}</td></tr>`;
             h += `<tr class="section-header-row"><td colspan="3">Universal Charges</td><td>${fmt(ucA)}</td></tr><tr><td>SPUG / Missionary</td><td>${imp.toLocaleString()} kWh</td><td>0.2662</td><td>${fmt(imp*0.2662)}</td></tr><tr><td>Environmental / RED</td><td>${imp.toLocaleString()} kWh</td><td>0.0126</td><td>${fmt(imp*0.0126)}</td></tr><tr><td>FIT-All Charge</td><td>${sB.toLocaleString()} kWh</td><td>0.2011</td><td>${fmt(sB*0.2011)}</td></tr><tr><td>GEA-All Charge</td><td>${sB.toLocaleString()} kWh</td><td>0.0371</td><td>${fmt(sB*0.0371)}</td></tr>`;
             h += `<tr class="section-header-row"><td colspan="3">Government Taxes</td><td>${fmt(lft)}</td></tr><tr><td>Local Franchise Tax</td><td>--</td><td>0.627%</td><td>${fmt(lft)}</td></tr>`;
-            h += `<tr class="export-row-standard"><td>Solar Export Credit (Prev. Month Gen)</td><td>${exp.toLocaleString()} kWh</td><td>${expRate.toFixed(4)}</td><td>- ${fmt(cred)}</td></tr>`;
+            h += `<tr class="export-row-standard"><td>Solar Export Credit (DER Participation - Prev. Month Gen)</td><td>${exp.toLocaleString()} kWh</td><td><input type="number" step="0.0001" value="${expRate.toFixed(4)}" class="w-20 lg:w-24 bg-transparent text-right outline-none font-black border-b border-emerald-400/30 focus:border-emerald-400 text-xs lg:text-sm" onfocus="this.select()" oninput="syncRate('m', this.value)"></td><td>- ${fmt(cred)}</td></tr>`;
             set('m-tbody', h); doAna(net, cred, rec, cap);
         }
 
         function calcC() {
-            const cls = document.getElementById('c-class').value, r = cRS[cls];
+            const cls = document.getElementById('c-class').value, r = {...cRS[cls], gen: parseFloat(document.getElementById('c-gen-price').value)||cRS[cls].gen};
             const imp = parseFloat(document.getElementById('c-imp').value)||0, dem = parseFloat(document.getElementById('c-dem').value)||0, cap = parseFloat(document.getElementById('c-cap').value)||0;
             const exp = parseFloat(document.getElementById('c-exp').value)||0, rec = parseFloat(document.getElementById('c-rec-in').value)||0, sB = imp+rec-exp;
             set('b-imp', imp.toLocaleString()+" kWh"); set('b-exp', "- "+exp.toLocaleString()+" kWh"); set('b-rec', rec.toLocaleString()+" kWh"); set('b-sub', sB.toLocaleString()+" kWh");
@@ -257,18 +351,22 @@
             h += `<tr><td>System Loss Charge</td><td>${imp.toLocaleString()} kWh</td><td>${r.sl.toFixed(4)}</td><td>${fmt(slA)}</td></tr>`;
             h += `<tr class="section-header-row"><td colspan="3">Distribution Revenues</td><td>${fmt(dNet+rS+mS+rfA)}</td></tr><tr><td>Distribution Network (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.hasDemand?"0.0000":r.dist.toFixed(4)}</td><td>${fmt(r.hasDemand?0:imp*r.dist)}</td></tr>`;
             if(r.hasDemand) h += `<tr><td>Distribution Network (kW)</td><td>${dem.toLocaleString()} kW</td><td>${r.distDemand.toFixed(4)}</td><td>${fmt(dem*r.distDemand)}</td></tr>`;
-            h += `<tr><td>Retail Electric Service (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.retailKwh.toFixed(4)}</td><td>${fmt(imp*r.retailKwh)}</td></tr><tr><td>Retail Electric Service (meter)</td><td>1.00 mo</td><td>${r.retailFix.toFixed(2)}</td><td>${fmt(r.retailFix)}</td></tr><tr><td>Metering Charge (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.meterKwh.toFixed(4)}</td><td>${fmt(imp*r.meterKwh)}</td></tr><tr><td>Metering Charge (meter)</td><td>1.00 mo</td><td>${r.meterFix.toFixed(2)}</td><td>${fmt(r.meterFix)}</td></tr><tr><td>Reinvestment Fund for CAPEX</td><td>${imp.toLocaleString()} kWh</td><td>${r.reinvest.toFixed(4)}</td><td>${fmt(rfA)}</td></tr><tr class="section-header-row"><td colspan="3">Others</td><td>${fmt(lifeA+scsA)}</td></tr><tr><td>Lifeline Rate Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>${r.life.toFixed(4)}</td><td>${fmt(lifeA)}</td></tr><tr><td>Senior Citizen Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>${r.scsRate.toFixed(4)}</td><td>${fmt(scsA)}</td></tr><tr class="section-header-row"><td colspan="3">Government Revenues</td><td>${fmt(totalVAT+ucME+ucEnv)}</td></tr><tr><td>VAT (Gen, Trans, SL, Dist)</td><td>Mixed</td><td>--</td><td>${fmt(totalVAT)}</td></tr><tr><td>Universal Charge (Missionary)</td><td>${imp.toLocaleString()} kWh</td><td>${r.ucME.toFixed(4)}</td><td>${fmt(ucME)}</td></tr><tr><td>Universal Charge (Environmental)</td><td>${imp.toLocaleString()} kWh</td><td>${r.ucEnv.toFixed(4)}</td><td>${fmt(ucEnv)}</td></tr><tr class="section-header-row"><td colspan="3">Subsidies (Renewable)</td><td>${fmt(fitA+geaA)}</td></tr><tr><td>FIT-ALL (Renewable)</td><td>${sB.toLocaleString()} kWh</td><td>${r.fit.toFixed(4)}</td><td>${fmt(fitA)}</td></tr><tr><td>GEA-All (Renewable)</td><td>${sB.toLocaleString()} kWh</td><td>${r.gea.toFixed(4)}</td><td>${fmt(geaA)}</td></tr><tr class="export-row-standard"><td>Solar Export Credit (Prev. Month Gen)</td><td>${exp.toLocaleString()} kWh</td><td>${expRate.toFixed(4)}</td><td>- ${fmt(cred)}</td></tr>`;
+            h += `<tr><td>Retail Electric Service (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.retailKwh.toFixed(4)}</td><td>${fmt(imp*r.retailKwh)}</td></tr><tr><td>Retail Electric Service (meter)</td><td>1.00 mo</td><td>${r.retailFix.toFixed(2)}</td><td>${fmt(r.retailFix)}</td></tr><tr><td>Metering Charge (kWh)</td><td>${imp.toLocaleString()} kWh</td><td>${r.meterKwh.toFixed(4)}</td><td>${fmt(imp*r.meterKwh)}</td></tr><tr><td>Metering Charge (meter)</td><td>1.00 mo</td><td>${r.meterFix.toFixed(2)}</td><td>${fmt(r.meterFix)}</td></tr><tr><td>Reinvestment Fund for CAPEX</td><td>${imp.toLocaleString()} kWh</td><td>${r.reinvest.toFixed(4)}</td><td>${fmt(rfA)}</td></tr><tr class="section-header-row"><td colspan="3">Others</td><td>${fmt(lifeA+scsA)}</td></tr><tr><td>Lifeline Rate Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>${r.life.toFixed(4)}</td><td>${fmt(lifeA)}</td></tr><tr><td>Senior Citizen Subsidy</td><td>${sB.toLocaleString()} kWh</td><td>${r.scsRate.toFixed(4)}</td><td>${fmt(scsA)}</td></tr><tr class="section-header-row"><td colspan="3">Government Revenues</td><td>${fmt(totalVAT+ucME+ucEnv)}</td></tr><tr><td>VAT (Gen, Trans, SL, Dist)</td><td>Mixed</td><td>--</td><td>${fmt(totalVAT)}</td></tr><tr><td>Universal Charge (Missionary)</td><td>${imp.toLocaleString()} kWh</td><td>${r.ucME.toFixed(4)}</td><td>${fmt(ucME)}</td></tr><tr><td>Universal Charge (Environmental)</td><td>${imp.toLocaleString()} kWh</td><td>${r.ucEnv.toFixed(4)}</td><td>${fmt(ucEnv)}</td></tr><tr class="section-header-row"><td colspan="3">Subsidies (Renewable)</td><td>${fmt(fitA+geaA)}</td></tr><tr><td>FIT-ALL (Renewable)</td><td>${sB.toLocaleString()} kWh</td><td>${r.fit.toFixed(4)}</td><td>${fmt(fitA)}</td></tr><tr><td>GEA-All (Renewable)</td><td>${sB.toLocaleString()} kWh</td><td>${r.gea.toFixed(4)}</td><td>${fmt(geaA)}</td></tr><tr class="export-row-standard"><td>Solar Export Credit (DER Participation - Prev. Month Gen)</td><td>${exp.toLocaleString()} kWh</td><td><input type="number" step="0.0001" value="${expRate.toFixed(4)}" class="w-20 bg-transparent text-right outline-none font-black border-b border-emerald-400/30 focus:border-emerald-400" onfocus="this.select()" oninput="syncRate('c', this.value)"></td><td>- ${fmt(cred)}</td></tr>`;
             set('c-tbody', h); doAna(net, cred, rec, cap);
         }
 
         function doAna(net, cred, rec, kwp) { 
-            const ppaRate = 4.0, trad = net + cred + rec*3.5; 
-            const ppaB = net + (rec*ppaRate), mSav = trad-net, ppaS = trad-ppaB;
+            const fGrid = parseFloat(document.getElementById('f-grid').value)||12.5, fPPA = parseFloat(document.getElementById('f-ppa').value)||4.5, fCap = parseFloat(document.getElementById('f-capex').value)||35000;
+            const trad = net + cred + rec*fGrid; 
+            const ppaSolar = rec * fPPA;
+            const ppaB = net + ppaSolar; 
+            const mSav = trad-net, ppaS = trad-ppaB;
             const annualCO2 = (rec*12*0.712/1000);
             set('ana-trad', "₱ "+fmt(trad)); set('ana-owned', "₱ "+fmt(net)); set('ana-ppa-bill', "₱ "+fmt(ppaB));
+            set('ana-ppa-util', "₱ "+fmt(net)); set('ana-ppa-solar', "₱ "+fmt(ppaSolar));
             set('ana-ppa-sav', "₱ "+fmt(ppaS)); set('ana-ppa-sav-bold', fmt(ppaS)); set('ana-sav-yr', "₱ "+fmt(mSav*12));
-            set('ana-pay', (mSav > 0) ? (kwp*30000/(mSav*12)).toFixed(1) : "0.0");
-            set('ana-roi', (mSav > 0) ? ((mSav*12 / (kwp*30000))*100).toFixed(1)+"%" : "0.0%");
+            set('ana-pay', (mSav > 0) ? (kwp*fCap/(mSav*12)).toFixed(1) : "0.0");
+            set('ana-roi', (mSav > 0) ? ((mSav*12 / (kwp*fCap))*100).toFixed(1)+"%" : "0.0%");
             set('ana-co2', annualCO2.toFixed(2)); 
             set('ana-trees', Math.floor(annualCO2 * 16.5).toLocaleString());
             set('ana-cars', Math.floor(annualCO2 / 4.6).toLocaleString());
